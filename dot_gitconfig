@@ -2,14 +2,44 @@
 	defaultBranch = main
 [core]
 	pager = delta
+	editor = nvim
+	autocrlf = input
+	excludesfile = /Users/cristianomorgante/.config/git/ignore
 [interactive]
 	diffFilter = delta --color-only
 [delta]
 	navigate = true
 	side-by-side = true
 	line-numbers = true
+	hyperlinks = true
+	hyperlinks-file-link-format = vscode://file/{path}:{line}
+	syntax-theme = Nord
+	features = decorations
 [merge]
 	conflictstyle = zdiff3
 [user]
 	email = cristiano@morgante.com.br
 	name = Cristiano Morgante
+[fetch]
+	prune = true
+	pruneTags = true
+[pull]
+	ff = only
+[push]
+	default = simple
+	autoSetupRemote = true
+[branch]
+	autosetuprebase = always
+[rebase]
+	autostash = true
+[rerere]
+	enabled = true
+[delta "decorations"]
+	commit-decoration-style = bold yellow box
+	file-style = bold yellow
+	hunk-header-style = cyan
+[alias]
+	st = status -sb
+	co = checkout
+	br = branch -vv
+	lg = log --oneline --decorate --graph --all
