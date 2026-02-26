@@ -54,6 +54,11 @@ zinit light romkatv/powerlevel10k
 # ╔════════════════════════════════════╗
 # ║ PLUGINS                            ║
 # ╚════════════════════════════════════╝
+
+# Better completion UI (fzf-tab)
+zinit ice wait"0" lucid
+zinit light Aloxaf/fzf-tab
+
 # Autosuggestions
 zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
 zinit light zsh-users/zsh-autosuggestions
@@ -61,10 +66,6 @@ zinit light zsh-users/zsh-autosuggestions
 # Syntax highlighting (deferred, keeps prompt snappy)
 zinit ice wait"1" lucid
 zinit light zdharma-continuum/fast-syntax-highlighting
-
-# Better completion UI (fzf-tab)
-zinit ice wait"1" lucid
-zinit light Aloxaf/fzf-tab
 
 # ╔════════════════════════════════════╗
 # ║ RUNTIME MANAGER (MISE)             ║
@@ -96,8 +97,19 @@ fi
 # ╔════════════════════════════════════╗
 # ║ SETTINGS                           ║
 # ╚════════════════════════════════════╝
-# History timestamps (compatible with your previous setup style)
-HIST_STAMPS="%d/%m/%y %T"
+# History (robust across multiple shells)
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+mkdir -p "${HISTFILE:h}"
+HISTSIZE=20000
+SAVEHIST=20000
+
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+setopt EXTENDED_HISTORY
 
 # ╔════════════════════════════════════╗
 # ║ SECURITY (DO NOT PUT SECRETS HERE) ║
@@ -175,7 +187,6 @@ alias work='"cd ~/workspace"'
 # ╔════════════════════════════════════╗
 # ║ FUNCTIONS                          ║
 # ╚════════════════════════════════════╝
-
 # -------------------------------------------------------------------
 # link_project
 # - Creates a symlink in ~/workspace/herd-links pointing to current dir
@@ -320,6 +331,24 @@ link_project() {
     echo "URL: https://$slug.test"
   fi
 }
+
+# ╔════════════════════════════════════╗
+# ║ HISTORY SEARCH (UP/DOWN)           ║
+# ╚════════════════════════════════════╝
+# Type a prefix (e.g. "ssh") then press Up/Down to cycle matching history entries.
+
+autoload -Uz history-beginning-search-backward history-beginning-search-forward
+
+# Ensure a predictable keymap (emacs). If you use vi mode intentionally, remove this line.
+bindkey -e
+
+# Common terminal sequences (Warp / iTerm2 / Terminal)
+bindkey '^[[A' history-beginning-search-backward  # Up
+bindkey '^[[B' history-beginning-search-forward   # Down
+
+# Vi insert-mode safety (in case something enables vi mode)
+bindkey -M viins '^[[A' history-beginning-search-backward
+bindkey -M viins '^[[B' history-beginning-search-forward
 
 # ╔════════════════════════════════════╗
 # ║ LOCAL (machine-specific, not versioned) ║
