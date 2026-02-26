@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+log() { printf "\n==> %s\n" "$*"; }
+
+# Only run if git exists
+if ! command -v git >/dev/null 2>&1; then
+  log "git not found; skipping."
+  exit 0
+fi
+
+###############################################################################
+# Identity (only if not already set)
+###############################################################################
+log "Git: identity (if missing)"
+if ! git config --global --get user.name >/dev/null; then
+  {{- if .data.name }}
+  git config --global user.name "{{ .data.name }}"
+  {{- else }}
+  log "user.name not set (no .data.name in chezmoi config); leaving as-is."
+  {{- end }}
+fi
+
+if ! git config --global --get user.email >/dev/null; then
+  {{- if .data.email }}
+  git config --global user.email "{{ .data.email }}"
+  {{- else }}
+  log "user.email not set (no .data.email in chezmoi config); leaving as-is."
+  {{- end }}
+fi
+
+###############################################################################
+# Core defaults (safe + consistent)
+###############################################################################
+log "Git: core defaults"
+git config --global init.defaultBranch main
+git config --global core.editor "nvim" || true
+git config --global core.autocrlf input
+git config --global fetch.prune true
+git config --global fetch.pruneTags true
+git config --global pull.ff only
+git config --global push.default simple
+git config --global branch.autosetuprebase always
+git config --global rebase.autostash true
+
+# Better conflict reuse
+git config --global rerere.enabled true
+
+# Protect against accidental pushes to wrong remote (optional but sane)
+git config --global push.autoSetupRemote true
+
+###############################################################################
+# Delta (if installed)
+###############################################################################
+if command -v delta >/dev/null 2>&1; then
+  log "Git: configure delta as pager"
+
+  git config --global core.pager "delta"
+  git config --global interactive.diffFilter "delta --color-only"
+  git config --global delta.navigate true
+  git config --global delta.side-by-side true
+  git config --global delta.line-numbers true
+  git config --global delta.hyperlinks true
+  git config --global delta.hyperlinks-file-link-format "vscode://file/{path}:{line}" || true
+
+  # Theme (Nord) - requires delta theme name available; fallback is fine.
+  git config --global delta.syntax-theme "Nord" || true
+
+  # Make diffs easier to scan
+  git config --global delta.features "decorations"
+  git config --global delta.decorations.commit-decoration-style "bold yellow box"
+  git config --global delta.decorations.file-style "bold yellow"
+  git config --global delta.decorations.hunk-header-style "cyan"
+else
+  log "delta not found; skipping delta config."
+fi
+
+###############################################################################
+# Useful aliases (minimal, non-invasive)
+###############################################################################
+log "Git: add minimal aliases"
+git config --global alias.st "status -sb"
+git config --global alias.co "checkout"
+git config --global alias.br "branch -vv"
+git config --global alias.lg "log --oneline --decorate --graph --all"
+
+###############################################################################
+# Global ignore (optional, safe)
+###############################################################################
+log "Git: global ignore"
+IGNORE_FILE="$HOME/.config/git/ignore"
+mkdir -p "$(dirname "$IGNORE_FILE")"
+touch "$IGNORE_FILE"
+
+# Append only if missing (idempotent)
+add_ignore() {
+  local line="$1"
+  grep -qxF "$line" "$IGNORE_FILE" 2>/dev/null || echo "$line" >> "$IGNORE_FILE"
+}
+
+add_ignore ".DS_Store"
+add_ignore ".idea/"
+add_ignore ".vscode/"
+add_ignore "*.swp"
+add_ignore "*.swo"
+
+git config --global core.excludesfile "$IGNORE_FILE"
+
+log "Git bootstrap done."
