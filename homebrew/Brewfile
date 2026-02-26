@@ -2,6 +2,7 @@
 brew "git"
 brew "zsh"
 brew "zinit"
+brew "neovim"
 brew "mise"
 brew "direnv"
 brew "zoxide"

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+log() { printf "\n==> %s\n" "$*"; }
+
+REPO="git@github.com:Simplify-Technology/svim.git"
+TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/svim"
+
+if ! command -v git >/dev/null 2>&1; then
+  log "git not found; skipping svim."
+  exit 0
+fi
+
+log "SVIM: ensure target dir"
+mkdir -p "$(dirname "$TARGET")"
+
+if [[ -d "$TARGET/.git" ]]; then
+  log "SVIM: updating existing repo"
+  git -C "$TARGET" pull --ff-only
+else
+  if [[ -e "$TARGET" && ! -d "$TARGET" ]]; then
+    log "ERROR: $TARGET exists and is not a directory."
+    exit 1
+  fi
+
+  if [[ -d "$TARGET" && ! -d "$TARGET/.git" ]]; then
+    log "WARNING: $TARGET exists but is not a git repo; leaving as-is."
+    log "If you want to replace it, remove the directory and re-run."
+    exit 0
+  fi
+
+  log "SVIM: cloning $REPO -> $TARGET"
+  git clone --depth=1 "$REPO" "$TARGET"
+fi
+
+# Optional: create a convenience wrapper command in ~/.local/bin
+BIN_DIR="$HOME/.local/bin"
+mkdir -p "$BIN_DIR"
+
+WRAPPER="$BIN_DIR/nvims"
+if [[ ! -f "$WRAPPER" ]]; then
+  log "SVIM: creating wrapper $WRAPPER"
+  cat > "$WRAPPER" <<'SH'
+#!/usr/bin/env bash
+export NVIM_APPNAME=svim
+exec nvim "$@"
+SH
+  chmod +x "$WRAPPER"
+fi
+
+log "SVIM done. Use: nvims  (or: NVIM_APPNAME=svim nvim)"
