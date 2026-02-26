@@ -1,0 +1,32 @@
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/core"
+tap "homebrew/cask-fonts"
+
+# --- CLI essentials ---
+brew "git"
+brew "zsh"
+brew "zinit"
+brew "mise"
+brew "direnv"
+brew "zoxide"
+brew "fzf"
+brew "fd"
+brew "ripgrep"
+brew "bat"
+brew "eza"
+brew "delta"
+brew "lazygit"
+brew "gnupg"
+brew "pinentry-mac"
+brew "vivid"
+
+# --- GUI apps ---
+cask "warp"
+cask "orbstack"
+cask "raycast"
+cask "rectangle"
+
+# Optional: if you use it
+# cask "docker"
+
