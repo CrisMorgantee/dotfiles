@@ -24,7 +24,7 @@
 	prune = true
 	pruneTags = true
 [pull]
-	ff = only
+	rebase = true
 [push]
 	default = simple
 	autoSetupRemote = true
