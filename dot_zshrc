@@ -97,19 +97,19 @@ fi
 # ╔════════════════════════════════════╗
 # ║ SETTINGS                           ║
 # ╚════════════════════════════════════╝
-# History (robust across multiple shells)
-HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
-mkdir -p "${HISTFILE:h}"
-HISTSIZE=20000
-SAVEHIST=20000
+# History (stable, single file)
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
 
 setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 setopt EXTENDED_HISTORY
+
+unsetopt SHARE_HISTORY
 
 # ╔════════════════════════════════════╗
 # ║ SECURITY (DO NOT PUT SECRETS HERE) ║
@@ -168,13 +168,13 @@ alias nah="git reset --hard && git clean -df"
 alias putz="git reset --soft HEAD~1"
 alias wip="git add . && git commit -m 'wip' >/dev/null"
 alias wips="git add . && git commit -m 'wip' >/dev/null && git push"
-alias hist="history | grep" # Pesquisa rápida no histórico
 alias clrgkb="rm -f /tmp/.gkb_branch && echo 'Cache de branches limpo.'"
 
 # ━━━━━━ SYSTEM ADMIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 alias mkdir="mkdir -pv"
 alias ping="ping -c 5"
 alias clr="clear; echo Currently logged in on $TTY, as $USERNAME in directory $PWD."
+alias hist="history | grep" # Pesquisa rápida no histórico
 
 # ━━━━━━ EDITOR / CONFIG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 alias neoconfig="cd ~/.config/nvim && nvim init.lua"
