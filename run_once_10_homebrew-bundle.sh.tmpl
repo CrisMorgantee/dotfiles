@@ -1,23 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install Homebrew (if missing)
+log() { printf "\n==> %s\n" "$*"; }
+
+# 1) Ensure Homebrew exists
 if ! command -v brew >/dev/null 2>&1; then
-  echo "Homebrew not found. Installing..."
+  log "Homebrew not found. Installing..."
   NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Ensure brew is available in PATH (Apple Silicon)
+# Sanity check
+if ! command -v brew >/dev/null 2>&1; then
+  log "ERROR: Homebrew installation failed or brew not in PATH."
+  exit 1
+fi
+
+# 2) Ensure brew in PATH (Apple Silicon)
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-echo "Updating Homebrew..."
-brew update
-
 BREWFILE="{{ .chezmoi.sourceDir }}/homebrew/Brewfile"
 
-echo "Installing packages from Brewfile: $BREWFILE"
-brew bundle --file="$BREWFILE"
+log "brew update"
+brew update
 
-echo "Done: brew bundle"
+# 3) Check first (shows what's missing), then install
+log "brew bundle check (Brewfile)"
+if brew bundle check --file="$BREWFILE"; then
+  log "All Brewfile dependencies already satisfied."
+else
+  log "Installing missing packages from Brewfile..."
+  brew bundle --file="$BREWFILE"
+fi
+
+# 4) Post steps (safe)
+if command -v fzf >/dev/null 2>&1; then
+  log "fzf install (no shell config changes)"
+  "$(brew --prefix)"/opt/fzf/install --no-bash --no-fish --no-zsh || true
+fi
+
+log "Homebrew bootstrap done."
