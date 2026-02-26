@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+log() { printf "\n==> %s\n" "$*"; }
+
+# Only on macOS
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  log "Not macOS. Skipping."
+  exit 0
+fi
+
+# Ask for admin once (some commands need it)
+log "Requesting sudo (some settings require it)"
+sudo -v
+
+# Keep sudo alive while script runs
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+###############################################################################
+# UI / UX (reduce unnecessary animations & latency)
+###############################################################################
+log "UI/UX: reduce animations & latency"
+# Faster window resize
+defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
+
+# Disable "rubber band" / scroll bounce (less visual noise)
+defaults write NSGlobalDomain NSScrollViewRubberbanding -bool false
+
+# Reduce motion (System Settings -> Accessibility)
+defaults write com.apple.universalaccess reduceMotion -bool true
+
+# Prefer expanded save/print panels
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+
+###############################################################################
+# Keyboard / Input (developer-friendly)
+###############################################################################
+log "Keyboard: faster key repeat / less delay"
+# Note: macOS UI limits these; defaults can go beyond.
+defaults write NSGlobalDomain KeyRepeat -int 2
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+
+# Trackpad: tap to click
+log "Trackpad: tap to click"
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+###############################################################################
+# Finder (productivity defaults)
+###############################################################################
+log "Finder: show useful info, reduce clutter"
+# Show all filename extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Show status bar & path bar
+defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder ShowPathbar -bool true
+
+# Show hidden files (dev-friendly)
+defaults write com.apple.finder AppleShowAllFiles -bool true
+
+# Default Finder view: list view (Nlsv)
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+
+# Keep folders on top when sorting by name
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+
+# Avoid creating .DS_Store on network/USB (less noise in repos and shares)
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+###############################################################################
+# Dock (auto-hide ON, fast)
+###############################################################################
+log "Dock: enable auto-hide, faster animations"
+# Auto-hide dock (requested)
+defaults write com.apple.dock autohide -bool true
+
+# Remove delay to show dock + faster animation
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0.15
+
+# Don't animate opening applications (less distracting)
+defaults write com.apple.dock launchanim -bool false
+
+###############################################################################
+# Screenshots
+###############################################################################
+log "Screenshots: set location + format"
+SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+mkdir -p "$SCREENSHOT_DIR"
+defaults write com.apple.screencapture location -string "$SCREENSHOT_DIR"
+defaults write com.apple.screencapture type -string "png"
+
+###############################################################################
+# Safari (light safety/prod tweaks)
+###############################################################################
+log "Safari: enable Develop menu"
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+
+###############################################################################
+# Security (safe baseline)
+###############################################################################
+log "Security: enable firewall"
+# Enable Application Firewall (requires sudo)
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on >/dev/null
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on >/dev/null
+
+###############################################################################
+# Apply changes
+###############################################################################
+log "Restarting affected services (Finder, Dock, SystemUIServer)"
+killall Finder >/dev/null 2>&1 || true
+killall Dock >/dev/null 2>&1 || true
+killall SystemUIServer >/dev/null 2>&1 || true
+
+log "macOS defaults applied."
+log "Some changes may require logout/restart to fully take effect."
