@@ -27,7 +27,9 @@ defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 defaults write NSGlobalDomain NSScrollViewRubberbanding -bool false
 
 # Reduce motion (System Settings -> Accessibility)
-defaults write com.apple.universalaccess reduceMotion -bool true
+# Reduce motion (may be locked by OS on newer macOS versions)
+defaults -currentHost write com.apple.universalaccess reduceMotion -bool true 2>/dev/null || true
+defaults write com.apple.universalaccess reduceMotion -bool true 2>/dev/null || true
 
 # Prefer expanded save/print panels
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
