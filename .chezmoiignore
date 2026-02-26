@@ -1,0 +1,16 @@
+# Local machine overrides
+.zshrc.local
+
+# macOS noise
+.DS_Store
+
+# SSH / keys
+**/*.pem
+**/*.key
+**/id_*
+**/*secret*
+**/*token*
+**/*credentials*
+
+# Herd specific (if you move stuff later)
+herd-*
