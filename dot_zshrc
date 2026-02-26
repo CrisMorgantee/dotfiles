@@ -3,7 +3,6 @@
 # ╚════════════════════════════════════╝
 # ⚠️ Anything that may require console input (password prompts, y/n, etc.)
 # must go ABOVE the Powerlevel10k instant prompt block.
-export LS_COLORS="$(vivid generate nord)"
 #
 # ✅ Keep this block very early for the fastest prompt paint.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -17,6 +16,11 @@ fi
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+if command -v vivid >/dev/null 2>&1; then
+  export LS_COLORS="$(vivid generate nord)"
+fi
+
 # User bins — appended after MISE (below) so one single PATH mechanism
 # export is done once in "RUNTIME MANAGER (MISE)" section
 
@@ -164,9 +168,9 @@ alias clr="clear; echo Currently logged in on $TTY, as $USERNAME in directory $P
 alias neoconfig="cd ~/.config/nvim && nvim init.lua"
 
 # ━━━━━━ USER SHORTCUTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias icloud="cd $HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs/"
-alias simplify="cd $HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs/business/simplify_technology/"
-alias work="cd ~/workspace"
+alias icloud='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/"'
+alias simplify='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/business/simplify_technology/"'
+alias work='"cd ~/workspace"'
 
 # ╔════════════════════════════════════╗
 # ║ FUNCTIONS                          ║
