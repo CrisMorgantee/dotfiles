@@ -4,6 +4,21 @@
 
 Centralizar a instalação de fórmulas e casks em um único Brewfile versionado, aplicado por um run_once que instala o Homebrew se ausente e executa `brew bundle`, garantindo reprodutibilidade entre máquinas e path correto para Apple Silicon.
 
+## Referência do run_once_10_homebrew-bundle.sh.tmpl
+
+Cada passo do script e o que faz:
+
+| Passo | O que faz |
+|-------|-----------|
+| Verificação de `brew` | Se `brew` não existir, instala o Homebrew com o script oficial (`curl` do repositório GitHub), com `NONINTERACTIVE=1`. |
+| Apple Silicon | Se existir `/opt/homebrew/bin/brew`, executa `eval "$(/opt/homebrew/bin/brew shellenv)"` para colocar o Homebrew no PATH na sessão atual. |
+| `brew update` | Atualiza o Homebrew e as fórmulas. |
+| `brew bundle check --file="$BREWFILE"` | Verifica se todos os itens do Brewfile estão instalados; `$BREWFILE` é `{{ .chezmoi.sourceDir }}/homebrew/Brewfile`. |
+| `brew bundle --file="$BREWFILE"` | Se o check falhar, instala o que faltar (fórmulas e casks listados no Brewfile). A lista exata de pacotes está em `homebrew/Brewfile` no source do chezmoi. |
+| Pós-passo fzf | Se o binário `fzf` existir, executa `$(brew --prefix)/opt/fzf/install --no-bash --no-fish --no-zsh` para instalar keybindings/completion sem alterar config de shell (o Zsh já usa fzf via Zinit/fzf-tab). |
+
+Para saber **quais** fórmulas e casks são instalados, consulte o arquivo `homebrew/Brewfile` no repositório do chezmoi.
+
 ## Decisões de design
 
 - **Brewfile como única fonte:** Todas as dependências CLI e GUI listadas no plano (git, zsh, zinit, neovim, mise, direnv, zoxide, fzf, fd, ripgrep, bat, eza, delta, lazygit, gnupg, pinentry-mac, vivid; Warp, Orbstack, Raycast, Rectangle) ficam em `homebrew/Brewfile`. Nada é instalado via `brew install` manual fora do bundle para evitar deriva.
