@@ -364,7 +364,3 @@ fi
 # ╚════════════════════════════════════╝
 # Herd, extra PATH, secrets: put in ~/.zshrc.local (copy from ~/.zshrc.local.example)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-
-
-# Herd injected PHP 8.4 configuration.
-export HERD_PHP_84_INI_SCAN_DIR="/Users/cristianomorgante/Library/Application Support/Herd/config/php/84/"
