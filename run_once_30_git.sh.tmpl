@@ -12,18 +12,19 @@ fi
 ###############################################################################
 # Identity (only if not already set)
 ###############################################################################
+{{ $data := index . "data" }}
 log "Git: identity (if missing)"
 if ! git config --global --get user.name >/dev/null; then
-  {{- if .data.name }}
-  git config --global user.name "{{ .data.name }}"
+  {{- if and $data (index $data "name") }}
+  git config --global user.name "{{ index $data "name" }}"
   {{- else }}
   log "user.name not set (no .data.name in chezmoi config); leaving as-is."
   {{- end }}
 fi
 
 if ! git config --global --get user.email >/dev/null; then
-  {{- if .data.email }}
-  git config --global user.email "{{ .data.email }}"
+  {{- if and $data (index $data "email") }}
+  git config --global user.email "{{ index $data "email" }}"
   {{- else }}
   log "user.email not set (no .data.email in chezmoi config); leaving as-is."
   {{- end }}
