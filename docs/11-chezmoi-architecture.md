@@ -14,7 +14,7 @@ Descrever como o chezmoi gerencia este ambiente: source directory, targets dos d
 
 ## Arquitetura
 
-- **Mapeamento:** dot_zshrc → ~/.zshrc; dot_gitconfig → ~/.gitconfig; dot_p10k.zsh → ~/.p10k.zsh; dot_tmux.conf → ~/.tmux.conf; dot_local/bin/executable_tmux-auto → ~/.local/bin/tmux-auto (executável); dot_local/bin/executable_tmux-git-status → ~/.local/bin/tmux-git-status (executável); dot_zshrc.local.example → ~/.zshrc.local.example. run_once_10/20/30/40 executam em ordem numérica; homebrew/Brewfile é apenas lido pelo run_once_10.
+- **Mapeamento:** dot_zshrc → ~/.zshrc; dot_gitconfig → ~/.gitconfig; dot_p10k.zsh → ~/.p10k.zsh; dot_tmux.conf → ~/.tmux.conf; dot_local/bin/executable_tmux-auto → ~/.local/bin/tmux-auto (executável); dot_zshrc.local.example → ~/.zshrc.local.example. run_once_10/20/30/40 executam em ordem numérica; homebrew/Brewfile é apenas lido pelo run_once_10.
 - **Templates:** run_once usam {{ .chezmoi.sourceDir }} e {{ .data.name }}/{{ .data.email }}. dot_gitconfig pode conter placeholders se desejado; no estado atual o dot_gitconfig tem valores fixos para user.
 - **Data:** Pode vir de arquivo (chezmoi.toml em config ou no source) ou de -D no init/apply. Campos usados: name, email (run_once_30).
 
@@ -28,7 +28,7 @@ Descrever como o chezmoi gerencia este ambiente: source directory, targets dos d
 
 - `chezmoi managed` lista todos os targets gerenciados; nenhum path de secret deve aparecer.
 - `chezmoi diff` após alteração no source mostra as diferenças esperadas.
-- Após apply, ~/.zshrc, ~/.gitconfig, ~/.p10k.zsh, ~/.tmux.conf, ~/.local/bin/tmux-auto e ~/.local/bin/tmux-git-status refletem o conteúdo do source (e run_once já executados deixam estado consistente).
+- Após apply, ~/.zshrc, ~/.gitconfig, ~/.p10k.zsh, ~/.tmux.conf e ~/.local/bin/tmux-auto refletem o conteúdo do source (e run_once já executados deixam estado consistente).
 
 ## Modos de falha
 

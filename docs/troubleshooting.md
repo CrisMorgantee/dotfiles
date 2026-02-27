@@ -88,12 +88,12 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 ---
 
-## Tmux: auto-session não roda ou status-right sem git
+## Tmux: auto-session não roda
 
-**Causas:** tmux-auto ou tmux-git-status não no PATH (~/.local/bin); tmux não instalado; em SSH o script só roda em shell interativo; fora de repo git o status-right não mostra branch.
+**Causas:** tmux-auto não no PATH (~/.local/bin); tmux não instalado; em SSH o script só roda em shell interativo; `TMUX` já está setado (já dentro do tmux).
 
-**Validação:** `command -v tmux-auto tmux-git-status` deve resolver para ~/.local/bin. Em SSH, `echo $SSH_CONNECTION` não vazio e `echo $TMUX` vazio antes do attach. Dentro de tmux em repo git, status-right deve mostrar branch e ⇡/⇣ se houver upstream.
+**Validação:** `command -v tmux-auto` deve resolver para ~/.local/bin. Em SSH, `echo $SSH_CONNECTION` não vazio e `echo $TMUX` vazio antes do attach.
 
-**Correção:** Garantir que o .zshrc exporta PATH com $HOME/.local/bin antes do bloco TMUX AUTO-SESSION. Aplicar dotfiles: `chezmoi add dot_local/bin/executable_tmux-auto dot_local/bin/executable_tmux-git-status` e `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
+**Correção:** Garantir que o .zshrc exporta PATH com $HOME/.local/bin antes do bloco TMUX AUTO-SESSION. Aplicar dotfiles: `chezmoi add dot_local/bin/executable_tmux-auto` e `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
 
-**Reverter:** Comentar o bloco "TMUX AUTO-SESSION" no dot_zshrc; em dot_tmux.conf reverter status-right para `"%Y-%m-%d %H:%M "`. Ver 16-tmux.md.
+**Reverter:** Comentar o bloco "TMUX AUTO-SESSION" no dot_zshrc. Ver 16-tmux.md.

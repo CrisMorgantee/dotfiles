@@ -19,9 +19,8 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 | dot_zshrc                           | ~/.zshrc               | Config do shell, plugins, histórico, aliases, tmux-auto (SSH-aware)                              |
 | dot_gitconfig                       | ~/.gitconfig           | Config global do Git (pull.rebase, delta, aliases etc.)                                          |
 | dot_p10k.zsh                        | ~/.p10k.zsh            | Tema Powerlevel10k (Nord, estilo Pure)                                                           |
-| dot_tmux.conf                       | ~/.tmux.conf           | Config tmux (status com git branch, TPM, nordtheme, tmux-yank)                                   |
+| dot_tmux.conf                       | ~/.tmux.conf           | Config tmux (status minimal, TPM, nordtheme, tmux-yank)                                          |
 | dot_local/bin/executable_tmux-auto  | ~/.local/bin/tmux-auto | Script: auto attach/cria sessão tmux por hostname em SSH; TMUX_AUTOSTART=1 força local            |
-| dot_local/bin/executable_tmux-git-status | ~/.local/bin/tmux-git-status | Script: branch, dirty, ahead/behind para status-right do tmux                         |
 | dot_zshrc.local.example             | ~/.zshrc.local.example | Modelo para config local da máquina (não aplicado como .local)                                   |
 | run_once_10_homebrew-bundle.sh.tmpl | run once               | Instalar Homebrew se ausente, brew bundle a partir do Brewfile, fzf install                      |
 | run_once_20_macos-defaults.sh.tmpl  | run once               | Defaults do macOS (UI, teclado, Finder, Dock, screenshots, Safari, firewall)                     |
@@ -38,7 +37,7 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 | .config/nvim | ~/.config/nvim | [git@github.com](mailto:git@github.com):Simplify-Technology/svim.git (refresh 168h) |
 
 
-**Dependências:** Zinit depende do Homebrew (instalado via run_once_10). Powerlevel10k e plugins dependem do Zinit. mise, direnv, zoxide dependem de estarem no PATH (Homebrew ou mise). Delta e config do Git dependem de run_once_10 (git, delta) e run_once_30. Config do Neovim depende de run_once_10 (neovim) e do chezmoi apply (clone externo). tmux-auto e tmux-git-status dependem de tmux no PATH (Brewfile) e de ~/.local/bin no PATH (definido no .zshrc).
+**Dependências:** Zinit depende do Homebrew (instalado via run_once_10). Powerlevel10k e plugins dependem do Zinit. mise, direnv, zoxide dependem de estarem no PATH (Homebrew ou mise). Delta e config do Git dependem de run_once_10 (git, delta) e run_once_30. Config do Neovim depende de run_once_10 (neovim) e do chezmoi apply (clone externo). tmux-auto depende de tmux no PATH (Brewfile) e de ~/.local/bin no PATH (definido no .zshrc).
 
 ## Fluxo operacional
 

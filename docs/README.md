@@ -22,7 +22,7 @@ Documentação técnica e guias de uso do ambiente versionado via chezmoi (macOS
 | [13-security-model.md](13-security-model.md) | Sem API keys no .zshrc; .zshrc.local; direnv + Keychain/1Password. |
 | [14-guia-de-uso.md](14-guia-de-uso.md) | Uso prático: mise, direnv, pnpm, zoxide, fzf-tab (como configurar e usar nos projetos). |
 | [15-guia-de-instalacao.md](15-guia-de-instalacao.md) | Instalação passo a passo para quem está do zero (comandos, verificação). |
-| [16-tmux.md](16-tmux.md) | Tmux: auto-session por hostname em SSH, status-right com git branch, TPM e plugins. |
+| [16-tmux.md](16-tmux.md) | Tmux: auto-session por hostname em SSH, TPM e plugins. |
 | [troubleshooting.md](troubleshooting.md) | Problemas comuns e correções. |
 
 ## Por onde começar
