@@ -95,7 +95,7 @@ chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.c
 3. Executa três scripts na ordem:
    - **run_once_10:** Instala o Homebrew (se ainda não existir) e instala todos os pacotes do Brewfile (Zsh, Zinit, Neovim, mise, direnv, eza, bat, git, delta, etc.). Pode levar vários minutos.
    - **run_once_20:** Aplica defaults do macOS (teclado, Finder, Dock, firewall, etc.). **Vai pedir sua senha de administrador (sudo)** uma vez. Digite a senha quando solicitado.
-   - **run_once_30:** Configura o Git global (editor, pull com rebase, delta, identidade com o nome e e-mail que você passou).
+   - **run_once_30:** Configura o Git global (editor, pull com rebase, delta, identidade com o nome e e-mail que você passou, ignore global para macOS, editor temp, logs e archives).
 
 **Se o repositório for privado ou usar SSH:** Tenha a chave SSH configurada no Mac ou use a URL HTTPS e faça login quando o Git pedir (ou use um token). Na primeira vez, o macOS pode pedir permissão para acessar chaves ou rede.
 

@@ -22,7 +22,7 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 | dot_zshrc.local.example             | ~/.zshrc.local.example | Modelo para config local da máquina (não aplicado como .local)                                   |
 | run_once_10_homebrew-bundle.sh.tmpl | run once               | Instalar Homebrew se ausente, brew bundle a partir do Brewfile, fzf install                      |
 | run_once_20_macos-defaults.sh.tmpl  | run once               | Defaults do macOS (UI, teclado, Finder, Dock, screenshots, Safari, firewall)                     |
-| run_once_30_git.sh.tmpl             | run once               | Identidade Git se ausente (a partir de data), defaults principais, delta, aliases, ignore global |
+| run_once_30_git.sh.tmpl             | run once               | Identidade Git se ausente (a partir de data), defaults principais, delta, aliases, ignore global (macOS, editor temp, logs, archives) |
 | homebrew/Brewfile                   | —                      | Lista de fórmulas e casks para run_once_10                                                       |
 
 
