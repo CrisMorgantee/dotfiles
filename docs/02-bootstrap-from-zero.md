@@ -8,7 +8,7 @@ Procedimento determinístico para levar um Mac do zero (ou onboarding de desenvo
 
 - **Pré-requisitos mínimos:** Xcode Command Line Tools (ou confirmação de que já estão instalados); conta GitHub para clone do repo do chezmoi e do externo do Neovim. Não é necessário instalar o Homebrew manualmente antes do run_once_10: o script instala se estiver ausente.
 - **Data do chezmoi obrigatória para identidade Git:** O run_once_30_git define `user.name` e `user.email` apenas quando não estão já configurados globalmente e quando existem `{{ .data.name }}` e `{{ .data.email }}` no template. Para instalação do zero sem identidade Git prévia, é necessário fornecer data (arquivo de config do chezmoi ou `-D name="..." -D email="..."` no init/apply). Sem data, o run_once_30 não define identidade e o desenvolvedor precisará configurar manualmente.
-- **Ordem dos run_once:** 10 (Homebrew + Brewfile) deve rodar antes de qualquer uso de brew/zinit no shell; 20 (macOS defaults) exige sudo; 30 (Git) depende de git estar no PATH (instalado pelo 10).
+- **Ordem dos run_once:** 10 (Homebrew + Brewfile) deve rodar antes de qualquer uso de brew/zinit no shell; 20 (macOS defaults) exige sudo; 30 (Git) depende de git estar no PATH (instalado pelo 10); 40 instala o TPM do tmux (plugins).
 
 ## Arquitetura
 
@@ -17,7 +17,7 @@ Passos numerados, idempotentes onde possível:
 1. **Xcode Command Line Tools:** Instalar ou confirmar (`xcode-select -p`). Necessário para compilação e para o instalador do Homebrew.
 2. **Instalar chezmoi:** Via script oficial ou, se já houver Homebrew em outra máquina, `brew install chezmoi`. Em Mac novo, uso típico: script de instalação do site do chezmoi.
 3. **Inicializar e aplicar:** `chezmoi init --apply <URL-do-repo>` com data. Exemplo com data inline: `chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.com.br" -- git@github.com:CrisMorgantee/dotfiles.git`. Ou criar `~/.config/chezmoi/chezmoi.toml` (ou arquivo de data usado pelo init) com `[data] name = "..." email = "..."` antes do apply.
-4. **Dotfiles e run_once:** O primeiro `chezmoi apply` (ou o do `init --apply`) copia os dotfiles para os targets e executa os run_once 10, 20 e 30 na ordem. Não é necessário rodar run_once manualmente a menos que tenham falhado ou não tenham sido executados.
+4. **Dotfiles e run_once:** O primeiro `chezmoi apply` (ou o do `init --apply`) copia os dotfiles para os targets e executa os run_once 10, 20, 30 e 40 na ordem. Não é necessário rodar run_once manualmente a menos que tenham falhado ou não tenham sido executados.
 5. **.zshrc.local:** Se a máquina precisar de config local (ex.: PATH do Herd), copiar `~/.zshrc.local.example` para `~/.zshrc.local` e editar. Não versionado.
 6. **Abrir Warp e validar:** Definir Warp para usar Zsh como shell. Ver seção Validação.
 
@@ -38,7 +38,7 @@ Checklist final após abrir o Warp (ou terminal configurado para Zsh):
 - `mise --version` e `direnv version` retornam versões.
 - `l` (alias para eza) lista o diretório; `g --version` (ripgrep) funciona.
 - `nvim --version` existe (Brewfile instala neovim).
-- Histórico compartilhado: abrir dois terminais, digitar um comando em um, no outro pressionar seta para cima e ver o mesmo comando (SHARE_HISTORY + INC_APPEND_HISTORY).
+- Histórico: `echo $HISTFILE` deve ser `~/.zsh_history`. Digite um prefixo (ex.: `cd `) e use **Seta para cima/baixo** para validar `history-beginning-search`.
 - Git: `git config --global user.name` e `user.email` preenchidos (se data foi fornecida e run_once_30 rodou).
 
 ## Modos de falha

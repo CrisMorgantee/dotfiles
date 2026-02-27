@@ -16,15 +16,15 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 ---
 
-## Histórico não compartilhado entre terminais
+## Histórico não aparece em outros terminais
 
-**Causas:** SHARE_HISTORY ou INC_APPEND_HISTORY desativados; HISTFILE diferente entre sessões; diretório do HISTFILE inexistente ou sem permissão de escrita.
+**Causas:** SHARE_HISTORY está desativado por design (não há live-sharing); HISTFILE diferente entre sessões; falha de escrita no arquivo de history.
 
-**Validação:** `echo $HISTFILE` em dois terminais deve ser idêntico (ex.: ~/.local/state/zsh/history). `setopt | grep -E 'share|append'` deve mostrar SHARE_HISTORY e INC_APPEND_HISTORY. Verificar se o diretório existe: `[[ -d "${HISTFILE:h}" ]]`.
+**Validação:** `echo $HISTFILE` em dois terminais deve ser idêntico (ex.: ~/.zsh_history). `setopt | grep -E 'append|inc_append'` deve mostrar APPEND_HISTORY e INC_APPEND_HISTORY.
 
-**Correção:** Garantir que o bloco de history no .zshrc está ativo (setopt APPEND_HISTORY, INC_APPEND_HISTORY, SHARE_HISTORY). Garantir `mkdir -p "${HISTFILE:h}"`. Se HISTFILE estiver em path diferente por sessão (ex.: variável não exportada em contexto de login), padronizar para o mesmo path (XDG_STATE_HOME ou ~/.local/state).
+**Correção:** Se o objetivo é **persistência**: garantir que o bloco de history no .zshrc está ativo (setopt APPEND_HISTORY, INC_APPEND_HISTORY) e que `$HOME` é gravável. Se o objetivo é **live-sharing** entre shells: habilitar `setopt SHARE_HISTORY` no dot_zshrc.
 
-**Reverter:** Restaurar dot_zshrc; recriar o diretório do histórico se foi removido.
+**Reverter:** Restaurar dot_zshrc via `chezmoi apply`.
 
 ---
 
@@ -85,3 +85,15 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 **Correção:** Fornecer data ao chezmoi: criar ou editar config com [data] name e email, ou usar `chezmoi apply -D name="..." -D email="..."`. Se run_once_30 já tiver rodado, definir manualmente: `git config --global user.name "..." user.email "..."`. Documentado em 02-bootstrap-from-zero.md e 11-chezmoi-architecture.md.
 
 **Reverter:** `git config --global --unset user.name user.email` se quiser remover; depois redefinir conforme desejado.
+
+---
+
+## Tmux: auto-session não roda ou status-right sem git
+
+**Causas:** tmux-auto ou tmux-git-status não no PATH (~/.local/bin); tmux não instalado; em SSH o script só roda em shell interativo; fora de repo git o status-right não mostra branch.
+
+**Validação:** `command -v tmux-auto tmux-git-status` deve resolver para ~/.local/bin. Em SSH, `echo $SSH_CONNECTION` não vazio e `echo $TMUX` vazio antes do attach. Dentro de tmux em repo git, status-right deve mostrar branch e ⇡/⇣ se houver upstream.
+
+**Correção:** Garantir que o .zshrc exporta PATH com $HOME/.local/bin antes do bloco TMUX AUTO-SESSION. Aplicar dotfiles: `chezmoi add dot_local/bin/executable_tmux-auto dot_local/bin/executable_tmux-git-status` e `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
+
+**Reverter:** Comentar o bloco "TMUX AUTO-SESSION" no dot_zshrc; em dot_tmux.conf reverter status-right para `"%Y-%m-%d %H:%M "`. Ver 16-tmux.md.

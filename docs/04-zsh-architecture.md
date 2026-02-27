@@ -25,10 +25,11 @@ Sequência no .zshrc:
 8. mise activate zsh; PATH append.
 9. direnv hook zsh.
 10. zoxide init zsh.
-11. HISTFILE, setopts de history, mkdir do diretório do history.
+11. HISTFILE e setopts de history.
 12. Aliases e funções.
 13. autoload history-beginning-search; bindkey -e; bindings setas.
-14. source ~/.zshrc.local se existir.
+14. tmux-auto (se shell interativo e em SSH: attach/cria sessão tmux nomeada pelo hostname; TMUX_AUTOSTART=1 força local).
+15. source ~/.zshrc.local se existir.
 
 Artefatos: dot_zshrc → ~/.zshrc; dot_p10k.zsh → ~/.p10k.zsh. Zinit e plugins vêm do GitHub via Zinit (powerlevel10k, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting).
 

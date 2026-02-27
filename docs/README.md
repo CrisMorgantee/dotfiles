@@ -11,7 +11,7 @@ Documentação técnica e guias de uso do ambiente versionado via chezmoi (macOS
 | [02-bootstrap-from-zero.md](02-bootstrap-from-zero.md) | Procedimento técnico de bootstrap (decisões, passos, validação). |
 | [03-homebrew.md](03-homebrew.md) | Brewfile, run_once_10 (passo a passo e referência), Apple Silicon. |
 | [04-zsh-architecture.md](04-zsh-architecture.md) | Zinit, Powerlevel10k, plugins, keymap emacs. |
-| [05-history-system.md](05-history-system.md) | Histórico: XDG_STATE_HOME, SHARE_HISTORY, history-beginning-search. |
+| [05-history-system.md](05-history-system.md) | Histórico: ~/.zsh_history, INC_APPEND_HISTORY, history-beginning-search. |
 | [06-cli-tooling.md](06-cli-tooling.md) | eza, vivid, bat, ripgrep, fd, aliases. |
 | [07-git-architecture.md](07-git-architecture.md) | dot_gitconfig, run_once_30 (referência das opções), delta, pull.rebase, ignore global. |
 | [08-mise-runtime.md](08-mise-runtime.md) | mise: ativação, shims, uso por projeto. |
@@ -22,6 +22,7 @@ Documentação técnica e guias de uso do ambiente versionado via chezmoi (macOS
 | [13-security-model.md](13-security-model.md) | Sem API keys no .zshrc; .zshrc.local; direnv + Keychain/1Password. |
 | [14-guia-de-uso.md](14-guia-de-uso.md) | Uso prático: mise, direnv, pnpm, zoxide, fzf-tab (como configurar e usar nos projetos). |
 | [15-guia-de-instalacao.md](15-guia-de-instalacao.md) | Instalação passo a passo para quem está do zero (comandos, verificação). |
+| [16-tmux.md](16-tmux.md) | Tmux: auto-session por hostname em SSH, status-right com git branch, TPM e plugins. |
 | [troubleshooting.md](troubleshooting.md) | Problemas comuns e correções. |
 
 ## Por onde começar
