@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only interactive shells should call this script.
+# Zsh will handle interactive detection, but keep it safe anyway.
+
+if ! command -v tmux >/dev/null 2>&1; then
+  exit 0
+fi
+
+# If already inside tmux, do nothing
+if [ -n "${TMUX:-}" ]; then
+  exit 0
+fi
+
+# Default behavior:
+# - auto start only on SSH
+# - you can force local with TMUX_AUTOSTART=1
+ssh_mode=0
+if [ -n "${SSH_CONNECTION:-}" ] || [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ]; then
+  ssh_mode=1
+fi
+
+if [ "${TMUX_AUTOSTART:-0}" != "1" ] && [ "$ssh_mode" != "1" ]; then
+  exit 0
+fi
+
+host="${HOSTNAME:-$(hostname)}"
+host="${host%%.*}" # short hostname
+session="${TMUX_SESSION_NAME:-$host}"
+
+exec tmux new -As "$session"
