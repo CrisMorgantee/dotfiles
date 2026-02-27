@@ -4,17 +4,82 @@
 
 Definir a configuração global do Git: fonte de verdade em dot_gitconfig (incluindo política `pull.rebase = true`), papel do run_once_30 para identidade e idempotência no bootstrap, uso do delta como pager, e ignore global.
 
+## Referência das configurações (run_once_30_git.sh.tmpl)
+
+Cada opção aplicada pelo script e o efeito prático:
+
+### Identidade (somente se ainda não definida)
+
+| Opção | Valor (exemplo) | O que faz |
+|-------|-----------------|-----------|
+| `user.name` | `{{ .data.name }}` | Nome usado em commits; preenchido só se não existir e houver `data.name` no chezmoi. |
+| `user.email` | `{{ .data.email }}` | E-mail usado em commits; preenchido só se não existir e houver `data.email` no chezmoi. |
+
+### Core e fluxo de trabalho
+
+| Opção | Valor | O que faz |
+|-------|--------|-----------|
+| `init.defaultBranch` | `main` | Nova branch padrão ao fazer `git init`. |
+| `core.editor` | `nvim` | Editor usado para mensagens de commit e rebase interativo. |
+| `core.autocrlf` | `input` | Converte CRLF→LF ao commitar; não converte ao fazer checkout (evita mudanças desnecessárias em arquivos de texto no macOS/Linux). |
+| `fetch.prune` | `true` | Ao fazer fetch, remove referências a branches que já não existem no remoto. |
+| `fetch.pruneTags` | `true` | Remove referências a tags que foram removidas no remoto. |
+| `pull.rebase` | `true` | `git pull` faz rebase em vez de merge, mantendo histórico linear. |
+| `push.default` | `simple` | `git push` sem argumentos envia só a branch atual e só se o nome coincidir com a do remoto. |
+| `branch.autosetuprebase` | `always` | Novas branches são configuradas para fazer rebase ao dar pull. |
+| `rebase.autostash` | `true` | Ao iniciar rebase com working tree sujo, faz stash automático e restaura depois. |
+| `rerere.enabled` | `true` | Reutiliza resoluções de conflito em rebases/merges repetidos. |
+| `push.autoSetupRemote` | `true` | Ao dar push em branch nova, cria o tracking no remoto se não existir. |
+
+### Delta (se o binário `delta` estiver instalado)
+
+| Opção | Valor | O que faz |
+|-------|--------|-----------|
+| `core.pager` | `delta` | Usa delta para exibir diffs e logs coloridos. |
+| `interactive.diffFilter` | `delta --color-only` | Diffs no rebase interativo passam pelo delta. |
+| `delta.navigate` | `true` | Navegação entre hunks no pager. |
+| `delta.side-by-side` | `true` | Diff lado a lado. |
+| `delta.line-numbers` | `true` | Mostra números de linha. |
+| `delta.hyperlinks` | `true` | Links clicáveis no terminal (ex.: para abrir arquivo no editor). |
+| `delta.hyperlinks-file-link-format` | `vscode://file/{path}:{line}` | Formato do link para abrir no editor. |
+| `delta.syntax-theme` | `Nord` | Tema de sintaxe do delta. |
+| `delta.features` | `decorations` | Ativa decorações (commit, file, hunk). |
+| `delta.decorations.commit-decoration-style` | `bold yellow box` | Estilo do cabeçalho de commit no diff. |
+| `delta.decorations.file-style` | `bold yellow` | Estilo do nome do arquivo. |
+| `delta.decorations.hunk-header-style` | `cyan` | Estilo do cabeçalho de hunk. |
+
+### Aliases
+
+O run_once_30 define os aliases mínimos (st, co, br, lg). O dot_gitconfig é a referência versionada e pode sobrescrever `lg` (ex.: formato estendido com autor e data) e adicionar outros (ex.: `pf`).
+
+| Alias | Comando (run_once / dot_gitconfig) | O que faz |
+|-------|-------------------------------------|-----------|
+| `st` | `status -sb` | Status resumido com branch. |
+| `co` | `checkout` | Atalho para checkout. |
+| `br` | `branch -vv` | Lista branches com tracking e último commit. |
+| `lg` | `log --oneline --decorate --graph --all` (run_once) ou formato estendido no dotfile | Log com grafo e todas as branches. |
+| `pf` | `push --force-with-lease` | Push forçado com proteção (apenas no dot_gitconfig). |
+
+### Ignore global
+
+O script cria `~/.config/git/ignore` e adiciona (se ainda não existirem) os padrões abaixo. Define `core.excludesfile` para esse arquivo, para que o Git ignore esses itens em todos os repositórios.
+
+- **macOS:** `.DS_Store`, `.AppleDouble`, `.LSOverride`, `Icon?`, `._*`, `.Spotlight-V100`, `.Trashes`
+- **Editor temp:** `*.swp`, `*.swo`, `*~`
+- **Logs:** `*.log`, `npm-debug.log*`, `yarn-debug.log*`, `pnpm-debug.log*`
+- **Archives:** `*.zip`, `*.tar`, `*.gz`, `*.rar` (se um projeto precisar versionar algum, use `git add -f`)
+
 ## Decisões de design
 
 - **Política pull.rebase true:** Única fonte de verdade é o dot_gitconfig, seção `[pull] rebase = true`. Pull sempre faz rebase em vez de merge. O run_once_30_git também executa `git config --global pull.rebase true` para garantir o valor em máquinas novas (idempotente); o conteúdo versionado que prevalece no dia a dia é o do dot_gitconfig.
-- **dot_gitconfig versionado:** Contém init.defaultBranch, core (pager, editor, autocrlf, excludesfile), interactive.diffFilter, delta (navigate, side-by-side, line-numbers, hyperlinks, syntax-theme Nord, decorations), merge.conflictstyle, user (name/email podem estar fixos no arquivo; run_once_30 só preenche quando não existem e quando há data).
+- **dot_gitconfig versionado:** Contém init.defaultBranch, core (pager, editor, autocrlf, excludesfile com path `~/.config/git/ignore`), interactive.diffFilter, delta (navigate, side-by-side, line-numbers, hyperlinks, syntax-theme Nord, decorations), merge.conflictstyle, [pull] rebase = true, user (name/email podem estar fixos no arquivo; run_once_30 só preenche quando não existem e quando há data), aliases (st, co, br, lg, pf).
 - **Identidade via data:** Em bootstrap do zero, se user.name/user.email não estão configurados, run_once_30 usa `{{ .data.name }}` e `{{ .data.email }}`. Para reinstalação limpa é necessário fornecer data ao chezmoi (documentado em 02-bootstrap e 11-chezmoi).
 - **Delta:** core.pager e interactive.diffFilter; tema Nord; decorations (commit, file, hunk-header). Configurado no dot_gitconfig e repetido no run_once_30 quando delta está instalado, para idempotência.
-- **Global ignore:** Arquivo em ~/.config/git/ignore; run_once_30 cria o diretório, adiciona entradas (.DS_Store, .idea/, .vscode/, *.swp, *.swo) de forma idempotente e seta core.excludesfile.
+- **Global ignore:** Arquivo em ~/.config/git/ignore; run_once_30 cria o diretório, adiciona entradas (macOS, editor temp, logs, archives) de forma idempotente e seta core.excludesfile.
 
 ## Arquitetura
 
-- **Artefatos:** dot_gitconfig → ~/.gitconfig. run_once_30_git.sh.tmpl executa uma vez: identidade (se faltar e data existir), init.defaultBranch, core.editor/autocrlf, fetch.prune/pruneTags, pull.rebase, push.default/autoSetupRemote, branch.autosetuprebase, rebase.autostash, rerere, delta (se instalado), aliases (st, co, br, lg), criação do arquivo de ignore e core.excludesfile.
+- **Artefatos:** dot_gitconfig → ~/.gitconfig. run_once_30_git.sh.tmpl executa uma vez: identidade (se faltar e data existir), init.defaultBranch, core.editor/autocrlf, fetch.prune/pruneTags, pull.rebase, push.default/autoSetupRemote, branch.autosetuprebase, rebase.autostash, rerere, delta (se instalado), aliases mínimos (st, co, br, lg), criação do arquivo de ignore e core.excludesfile. O dot_gitconfig prevalece para aliases e pull.rebase após apply.
 - **Ordem:** dot_gitconfig é aplicado pelo chezmoi apply; run_once_30 roda após e pode sobrescrever apenas o que não está versionado no dotfile (ex.: identity quando vinda de template). Para opções versionadas (pull.rebase, delta), o dot_gitconfig é a referência; run_once apenas reforça em bootstrap.
 
 ## Fluxo operacional
@@ -28,7 +93,7 @@ Definir a configuração global do Git: fonte de verdade em dot_gitconfig (inclu
 - `git config --global pull.rebase` retorna true.
 - `git config --global core.pager` retorna delta (se delta instalado).
 - `git config --global user.name` e user.email preenchidos (em bootstrap com data).
-- `git config --global core.excludesfile` aponta para ~/.config/git/ignore; arquivo existe e contém .DS_Store etc.
+- `git config --global core.excludesfile` aponta para ~/.config/git/ignore; arquivo existe e contém os padrões de ignore (macOS, editor temp, logs, archives).
 
 ## Modos de falha
 
