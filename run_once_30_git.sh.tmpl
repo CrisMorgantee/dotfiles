@@ -98,11 +98,28 @@ add_ignore() {
   grep -qxF "$line" "$IGNORE_FILE" 2>/dev/null || echo "$line" >> "$IGNORE_FILE"
 }
 
+# macOS
 add_ignore ".DS_Store"
-add_ignore ".idea/"
-add_ignore ".vscode/"
+add_ignore ".AppleDouble"
+add_ignore ".LSOverride"
+add_ignore "Icon?"
+add_ignore "._*"
+add_ignore ".Spotlight-V100"
+add_ignore ".Trashes"
+# Editor temp
 add_ignore "*.swp"
 add_ignore "*.swo"
+add_ignore "*~"
+# Logs
+add_ignore "*.log"
+add_ignore "npm-debug.log*"
+add_ignore "yarn-debug.log*"
+add_ignore "pnpm-debug.log*"
+# Archives (use git add -f if a project needs to track one)
+add_ignore "*.zip"
+add_ignore "*.tar"
+add_ignore "*.gz"
+add_ignore "*.rar"
 
 git config --global core.excludesfile "$IGNORE_FILE"
 
