@@ -101,11 +101,18 @@ defaults write com.apple.screencapture type -string "png"
 
 ###############################################################################
 # Safari (light safety/prod tweaks)
+# Safari is sandboxed; writing to com.apple.Safari can fail if Safari is running.
+# This block is tolerant to failure so the rest of the script continues.
 ###############################################################################
 log "Safari: enable Develop menu"
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+if pgrep -x "Safari" >/dev/null 2>&1; then
+  log "Safari is running; defaults may fail. Close Safari and re-run this script to apply Safari settings."
+fi
+(
+  defaults write com.apple.Safari IncludeDevelopMenu -bool true
+  defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+  defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+) || log "Safari defaults could not be written (e.g. Safari is open). Close Safari and run this script again to apply."
 
 ###############################################################################
 # Security (safe baseline)

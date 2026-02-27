@@ -60,6 +60,8 @@ Cada comando aplicado pelo script e o efeito prático para o usuário:
 
 ### Safari
 
+As preferências do Safari são gravadas no container do app (sandbox). **Feche o Safari** antes de rodar o script para que os `defaults write` tenham efeito. Se o script falhar nesse bloco, feche o Safari e reexecute o run_once_20 ou aplique os comandos manualmente.
+
 | Domínio/Chave | Valor | O que faz |
 |---------------|--------|-----------|
 | `com.apple.Safari IncludeDevelopMenu` | `true` | Exibe o menu “Desenvolver” (ferramentas de desenvolvedor). |
@@ -116,6 +118,7 @@ Algumas alterações (por exemplo reduce motion ou teclado) podem exigir logout 
 - **Usuário cancela sudo:** Script falha ou não aplica itens que exigem admin. Reexecutar o script quando desejar; inserir senha quando solicitado.
 - **macOS reverte ou ignora:** Em alguns macOS ou políticas MDM, reduceMotion ou outros podem ser sobrescritos. Ajustar manualmente nas Preferências se necessário.
 - **killall em app crítico:** Finder/Dock/SystemUIServer reiniciam; em geral é seguro. Se houver problema, logout/login ou restart restaura o estado.
+- **Safari em execução:** O Safari é sandboxed; as preferências ficam no container do app. Se o Safari estiver aberto, os `defaults write com.apple.Safari` podem falhar. O script não aborta: apenas registra o aviso e segue. Feche o Safari e reexecute o script para aplicar as preferências do Safari (menu Desenvolver).
 
 ## Estratégia de recuperação
 

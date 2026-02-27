@@ -58,7 +58,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** Verificar no chezmoi se o run_once consta como executado (documentação do chezmoi). Rodar o script manualmente com bash e observar erros (substituir `{{ .chezmoi.sourceDir }}` pelo path real no run_once_10).
 
-**Correção:** Para run_once_10: garantir rede e permissões; executar o script manualmente com BREWFILE ou source dir correto. Para run_once_20: executar novamente e inserir sudo quando pedido. Para run_once_30: fornecer data (name, email) ao chezmoi e reaplicar; ou configurar git config --global user.name/user.email manualmente. Forçar reexecução de run_once conforme opções do chezmoi (ex.: chezmoi re-run run_once).
+**Correção:** Para run_once_10: garantir rede e permissões; executar o script manualmente com BREWFILE ou source dir correto. Para run_once_20: executar novamente e inserir sudo quando pedido; se o erro for "Could not write domain ... com.apple.Safari", feche o Safari e reexecute o script (ou aplique os defaults do Safari manualmente com Safari fechado). Para run_once_30: fornecer data (name, email) ao chezmoi e reaplicar; ou configurar git config --global user.name/user.email manualmente. Forçar reexecução de run_once conforme opções do chezmoi (ex.: chezmoi re-run run_once).
 
 **Reverter:** Conforme o script: run_once_10 não desinstala pacotes; run_once_20 pode ser revertido por defaults delete ou Preferências do Sistema; run_once_30 pode ser sobrescrito editando ~/.gitconfig ou reaplicando dot_gitconfig.
 
