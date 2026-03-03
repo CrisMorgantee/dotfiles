@@ -178,6 +178,9 @@ alias hist="history | grep" # Pesquisa rápida no histórico
 
 # ━━━━━━ EDITOR / CONFIG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 alias neoconfig="cd ~/.config/nvim && nvim init.lua"
+alias ce="chezmoi edit"
+alias ca="chezmoi apply"
+alias cc="chezmoi cd"
 
 # ━━━━━━ USER SHORTCUTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 alias icloud='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/"'
@@ -242,16 +245,40 @@ link_project() {
       | command -p sed -E 's/[ _]+/-/g; s/[^a-z0-9-]+/-/g; s/--+/-/g; s/^-+//; s/-+$//'
   }
 
-  # 1) Nested clients/<client>/<app>
+  # 1) Workspace conventions (Laravel)
+  # - .../laravel/clients/<client>/<app> -> <client>-<app>
+  # - .../laravel/<domain>/<app>         -> <domain>-<app>
+  # - .../laravel/<app>                  -> <app>
   if [ -z "$slug" ]; then
+    local laravel_root="$HOME/workspace/laravel"
+    local rel=""
+
     case "$full_dir" in
-      */clients/*/*)
-        local client app
-        client="$(echo "$full_dir" | command -p sed -E 's|.*/clients/([^/]+)/([^/]+).*|\1|')"
-        app="$(echo "$full_dir" | command -p sed -E 's|.*/clients/([^/]+)/([^/]+).*|\2|')"
-        [ -n "$client" ] && [ -n "$app" ] && slug="$client-$app"
-        ;;
+      "$laravel_root"/*) rel="${full_dir#"$laravel_root"/}" ;;
     esac
+
+    if [ -n "$rel" ]; then
+      local seg1="${rel%%/*}"
+
+      if [ "$rel" = "$seg1" ]; then
+        # .../laravel/<app>
+        slug="$seg1"
+      else
+        if [ "$seg1" = "clients" ]; then
+          # .../laravel/clients/<client>/<app>
+          local rest="${rel#*/}" # after "clients/"
+          local client="${rest%%/*}"
+          if [ "$rest" != "$client" ]; then
+            local app="${rest#*/}"; app="${app%%/*}"
+            [ -n "$client" ] && [ -n "$app" ] && slug="$client-$app"
+          fi
+        else
+          # .../laravel/<domain>/<app>
+          local seg2="${rel#*/}"; seg2="${seg2%%/*}"
+          [ -n "$seg1" ] && [ -n "$seg2" ] && slug="$seg1-$seg2"
+        fi
+      fi
+    fi
   fi
 
   # 2) composer.json name
