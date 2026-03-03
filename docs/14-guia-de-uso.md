@@ -185,7 +185,7 @@ layout python # projeto Python
 ### Histórico (setas com prefixo)
 
 - **Uso:** Digite o início de um comando (ex.: `git commit`) e pressione **Seta para cima**. O Zsh mostra apenas entradas do histórico que **começam** com esse prefixo. Seta para baixo percorre na ordem inversa.
-- **Não exige configuração no projeto;** já ativo no .zshrc (history-beginning-search).
+- **Não exige configuração no projeto;** já ativo no shell (history-beginning-search).
 
 ### Bat e eza (saída de arquivos)
 

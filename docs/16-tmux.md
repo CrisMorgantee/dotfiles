@@ -58,7 +58,7 @@ Documentar a integração do tmux com este ambiente: sessão automática por hos
 
 ## Estratégia de recuperação
 
-- Desativar auto-session: comentar o bloco "TMUX AUTO-SESSION" no dot_zshrc e aplicar.
+- Desativar auto-session: comentar/remover `~/.config/zsh/60-tmux-auto.zsh` e recarregar o shell (ou `chezmoi apply`).
 - Forçar sessão local: em ~/.zshrc.local, `export TMUX_AUTOSTART=1`.
 - Ajustar status: em dot_tmux.conf, alterar `status-right` conforme preferir.
 

@@ -1,18 +1,9 @@
-# ╔════════════════════════════════════╗
-# ║ LOADERS                            ║
-# ╚════════════════════════════════════╝
-# ⚠️ Anything that may require console input (password prompts, y/n, etc.)
-# must go ABOVE the Powerlevel10k instant prompt block.
-#
-# ✅ Keep this block very early for the fastest prompt paint.
+# Powerlevel10k instant prompt (keep very early).
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# ╔════════════════════════════════════╗
-# ║ PATHS                              ║
-# ╚════════════════════════════════════╝
-# Homebrew (Apple Silicon). Keep early for commands availability.
+# Homebrew (Apple Silicon).
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
@@ -21,373 +12,54 @@ if command -v vivid >/dev/null 2>&1; then
   export LS_COLORS="$(vivid generate nord)"
 fi
 
-# User bins — appended after MISE (below) so one single PATH mechanism
-# export is done once in "RUNTIME MANAGER (MISE)" section
-
-
-# ╔════════════════════════════════════╗
-# ║ COMPLETION SYSTEM                  ║
-# ╚════════════════════════════════════╝
-# Fast + cached compinit (big startup win vs running compinit "raw")
+# Completion (cached compinit).
 autoload -Uz compinit
 _compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump-${ZSH_VERSION}"
 compinit -d "$_compdump" -C
 
-# ╔════════════════════════════════════╗
-# ║ ZINIT (PLUGIN MANAGER)             ║
-# ╚════════════════════════════════════╝
-# Zinit installed via Homebrew
+# Zinit (installed via Homebrew).
 if [[ -f "$HOMEBREW_PREFIX/opt/zinit/zinit.zsh" ]]; then
   source "$HOMEBREW_PREFIX/opt/zinit/zinit.zsh"
 fi
 
-# ╔════════════════════════════════════╗
-# ║ THEME (POWERLEVEL10K)              ║
-# ╚════════════════════════════════════╝
-# `lucid` silences "Loaded ..." messages (keeps init clean for instant prompt)
+# Theme (Powerlevel10k).
 zinit ice depth=1 lucid
 zinit light romkatv/powerlevel10k
 
-# Load p10k config if present
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
-# ╔════════════════════════════════════╗
-# ║ PLUGINS                            ║
-# ╚════════════════════════════════════╝
-
-# Better completion UI (fzf-tab)
+# Plugins.
 zinit ice wait"0" lucid
 zinit light Aloxaf/fzf-tab
 
-# Autosuggestions
 zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
 zinit light zsh-users/zsh-autosuggestions
 
-# Syntax highlighting (deferred, keeps prompt snappy)
 zinit ice wait"1" lucid
 zinit light zdharma-continuum/fast-syntax-highlighting
 
-# ╔════════════════════════════════════╗
-# ║ RUNTIME MANAGER (MISE)             ║
-# ╚════════════════════════════════════╝
-# Activates shims + hooks for per-project tool versions (also sets PATH)
+# Runtime manager (mise).
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
-# Single PATH append: user bins (no duplicate mechanisms, no typeset -U override)
 export PATH="$PATH:$HOME/.composer/vendor/bin:$HOME/.local/bin"
 
-# ╔════════════════════════════════════╗
-# ║ PROJECT ENV (DIRENV)               ║
-# ╚════════════════════════════════════╝
-# Auto-load per-directory env vars (requires `direnv allow` per project)
+# Project env (direnv).
 if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
-# Machine-specific config (Herd, etc.): use ~/.zshrc.local — see ~/.zshrc.local.example
 
-# ╔════════════════════════════════════╗
-# ║ NAVIGATION (ZOXIDE)                ║
-# ╚════════════════════════════════════╝
-# Smarter `cd` with frecency
+# Navigation (zoxide).
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
 fi
 
-# ╔════════════════════════════════════╗
-# ║ SETTINGS                           ║
-# ╚════════════════════════════════════╝
-# History (stable, single file)
-HISTFILE="$HOME/.zsh_history"
-HISTSIZE=50000
-SAVEHIST=50000
-
-setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_REDUCE_BLANKS
-setopt EXTENDED_HISTORY
-
-unsetopt SHARE_HISTORY
-
-# ╔════════════════════════════════════╗
-# ║ SECURITY (DO NOT PUT SECRETS HERE) ║
-# ╚════════════════════════════════════╝
-# Never export API keys directly in ~/.zshrc.
-# Recommended:
-# - per-project: .envrc + direnv
-# - global: Keychain/1Password + secure retrieval
-
-# ╔════════════════════════════════════╗
-# ║ ALIASES                            ║
-# ╚════════════════════════════════════╝
-
-# ━━━━━━ CHANGE DEFAULT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias c="ditto" # similar to `cp`
-
-# Prefer NOT overriding `cat` globally (avoid breaking scripts/tools)
-# Use bcat when you want syntax-highlighted output
-alias bcat='bat --theme="Nord"'
-
-# ━━━━━━ CLI QUALITY OF LIFE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-# Equivalent to: ls -lha
-alias l="eza -lag --time-style=long-iso"
-# Tree view (2 levels deep by default)
-alias lt="eza --tree --level=2 --long --group --time-style=long-iso"
-alias find="fd"
-alias g="rg"
-
-# ━━━━━━ LARAVEL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias a="php artisan"
-alias m="a migrate"
-alias mm="a make:model"
-alias mc="a make:controller"
-alias mcr="a -r make:controller"
-alias ma="a make:model -cmrfs"
-alias mf="a migrate:fresh"
-alias mfs="a migrate:fresh --seed"
-alias mrs="a migrate:refresh --seed" # Migrar e semear
-alias rl="a route:list"
-alias horizon="a horizon"
-alias key="a key:generate"
-alias pint="./vendor/bin/pint"
-alias tk="a tinker"
-alias tp="a test --parallel"
-
-# ━━━━━━ GIT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-# NOTE: alias can't take "$1" reliably; use a function instead.
-gc() { git commit -m "${1:?commit message required}"; }
-
-alias gs="git status"
-alias ga="git add"
-alias gp="git push"
-alias gl="git log --oneline --decorate --color --graph"
-alias gkt="git checkout -"
-alias nah="git reset --hard && git clean -df"
-alias putz="git reset --soft HEAD~1"
-alias wip="git add . && git commit -m 'wip' >/dev/null"
-alias wips="git add . && git commit -m 'wip' >/dev/null && git push"
-alias clrgkb="rm -f /tmp/.gkb_branch && echo 'Cache de branches limpo.'"
-
-# ━━━━━━ SYSTEM ADMIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias mkdir="mkdir -pv"
-alias ping="ping -c 5"
-alias clr="clear; echo Currently logged in on $TTY, as $USERNAME in directory $PWD."
-alias hist="history | grep" # Pesquisa rápida no histórico
-
-# ━━━━━━ EDITOR / CONFIG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias neoconfig="cd ~/.config/nvim && nvim init.lua"
-alias ce="chezmoi edit"
-alias ca="chezmoi apply"
-alias cc="chezmoi cd"
-
-# ━━━━━━ USER SHORTCUTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
-alias icloud='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/"'
-alias simplify='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/business/simplify_technology/"'
-alias work='"cd ~/workspace"'
-
-# ╔════════════════════════════════════╗
-# ║ FUNCTIONS                          ║
-# ╚════════════════════════════════════╝
-# -------------------------------------------------------------------
-# link_project
-# - Creates a symlink in ~/workspace/herd-links pointing to current dir
-# - Generates slug using priority:
-#   1) explicit arg
-#   2) .../clients/<client>/<app>
-#   3) composer.json "name"
-#   4) git remote origin (via git config)
-#   5) .env APP_NAME
-#   6) basename
-#
-# Usage:
-#   link_project                 # auto slug
-#   link_project my-slug         # manual slug
-#   link_project --no-open       # don't open browser
-#   link_project --print         # print slug/target/link
-link_project() {
-  # Use a safe PATH for core tools inside the function
-  local PATH="/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
-
-  local links_dir="$HOME/workspace/herd-links"
-  local full_dir="$PWD"
-  local slug=""
-  local no_open=0
-  local print_only=0
-
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --no-open) no_open=1 ;;
-      --print)   print_only=1 ;;
-      -*)
-        echo "Unknown option: $1"
-        return 2
-        ;;
-      *)
-        [ -z "$slug" ] || { echo "Too many arguments."; return 2; }
-        slug="$1"
-        ;;
-    esac
-    shift
+# Load modular zsh configs.
+if [ -d "$HOME/.config/zsh" ]; then
+  for file in "$HOME"/.config/zsh/*.zsh; do
+    [ -r "$file" ] && source "$file"
   done
-
-  case "$full_dir" in
-    "$links_dir"*)
-      echo "Refusing to run inside $links_dir"
-      return 2
-      ;;
-  esac
-
-  sanitize() {
-    echo "$1" \
-      | command -p tr '[:upper:]' '[:lower:]' \
-      | command -p sed -E 's/[ _]+/-/g; s/[^a-z0-9-]+/-/g; s/--+/-/g; s/^-+//; s/-+$//'
-  }
-
-  # 1) Workspace conventions (Laravel)
-  # - .../laravel/clients/<client>/<app> -> <client>-<app>
-  # - .../laravel/<domain>/<app>         -> <domain>-<app>
-  # - .../laravel/<app>                  -> <app>
-  if [ -z "$slug" ]; then
-    local laravel_root="$HOME/workspace/laravel"
-    local rel=""
-
-    case "$full_dir" in
-      "$laravel_root"/*) rel="${full_dir#"$laravel_root"/}" ;;
-    esac
-
-    if [ -n "$rel" ]; then
-      local seg1="${rel%%/*}"
-
-      if [ "$rel" = "$seg1" ]; then
-        # .../laravel/<app>
-        slug="$seg1"
-      else
-        if [ "$seg1" = "clients" ]; then
-          # .../laravel/clients/<client>/<app>
-          local rest="${rel#*/}" # after "clients/"
-          local client="${rest%%/*}"
-          if [ "$rest" != "$client" ]; then
-            local app="${rest#*/}"; app="${app%%/*}"
-            [ -n "$client" ] && [ -n "$app" ] && slug="$client-$app"
-          fi
-        else
-          # .../laravel/<domain>/<app>
-          local seg2="${rel#*/}"; seg2="${seg2%%/*}"
-          [ -n "$seg1" ] && [ -n "$seg2" ] && slug="$seg1-$seg2"
-        fi
-      fi
-    fi
-  fi
-
-  # 2) composer.json name
-  if [ -z "$slug" ] && [ -f composer.json ]; then
-    local name
-    name="$(command -p sed -nE 's/^[[:space:]]*"name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' composer.json | command -p head -n1)"
-    [ -n "$name" ] && slug="$(echo "$name" | command -p tr '/' '-')"
-  fi
-
-  # 3) git remote origin
-  if [ -z "$slug" ] && [ -d .git ]; then
-    local url repo owner cleaned
-    url="$(git config --get remote.origin.url 2>/dev/null)"
-    if [ -n "$url" ]; then
-      cleaned="${url%.git}"
-      cleaned="${cleaned##*:}"
-      cleaned="${cleaned##*/}"
-      repo="$cleaned"
-      owner="$(echo "$url" | command -p sed -E 's|.*[:/]+([^/]+)/[^/]+(\.git)?$|\1|')"
-      [ -n "$owner" ] && [ -n "$repo" ] && slug="$owner-$repo"
-    fi
-  fi
-
-  # 4) .env APP_NAME
-  if [ -z "$slug" ] && [ -f .env ]; then
-    local app_name
-    app_name="$(command -p sed -nE 's/^APP_NAME=(.*)$/\1/p' .env | command -p head -n1)"
-    app_name="${app_name%\"}"; app_name="${app_name#\"}"
-    app_name="${app_name%\'}"; app_name="${app_name#\'}"
-
-    case "$(echo "$app_name" | command -p tr '[:upper:]' '[:lower:]')" in
-      ""|laravel|app|myapp|my-app) ;;
-      *) slug="$app_name" ;;
-    esac
-  fi
-
-  # 5) basename fallback
-  if [ -z "$slug" ]; then
-    slug="$(command -p basename "$full_dir")"
-  fi
-
-  slug="$(sanitize "$slug")"
-  [ -n "$slug" ] || { echo "Could not determine slug."; return 2; }
-
-  mkdir -p "$links_dir"
-  local link_path="$links_dir/$slug"
-
-  if [ -e "$link_path" ]; then
-    if [ -L "$link_path" ]; then
-      local current_target
-      current_target="$(readlink "$link_path")"
-      if [ "$current_target" != "$full_dir" ]; then
-        echo "Link exists but points elsewhere:"
-        echo "  $link_path -> $current_target"
-        echo "Refusing to overwrite."
-        return 2
-      fi
-    else
-      echo "Path exists and is not a symlink: $link_path"
-      return 2
-    fi
-  else
-    ln -s "$full_dir" "$link_path"
-  fi
-
-  if [ "$print_only" -eq 1 ]; then
-    echo "slug=$slug"
-    echo "target=$full_dir"
-    echo "link=$link_path"
-    return 0
-  fi
-
-  if [ "$no_open" -eq 0 ]; then
-    open "https://$slug.test"
-  else
-    echo "Linked: $slug"
-    echo "URL: https://$slug.test"
-  fi
-}
-
-# ╔════════════════════════════════════╗
-# ║ HISTORY SEARCH (UP/DOWN)           ║
-# ╚════════════════════════════════════╝
-# Type a prefix (e.g. "ssh") then press Up/Down to cycle matching history entries.
-
-autoload -Uz history-beginning-search-backward history-beginning-search-forward
-
-# Ensure a predictable keymap (emacs). If you use vi mode intentionally, remove this line.
-bindkey -e
-
-# Common terminal sequences (Warp / iTerm2 / Terminal)
-bindkey '^[[A' history-beginning-search-backward  # Up
-bindkey '^[[B' history-beginning-search-forward   # Down
-
-# Vi insert-mode safety (in case something enables vi mode)
-bindkey -M viins '^[[A' history-beginning-search-backward
-bindkey -M viins '^[[B' history-beginning-search-forward
-
-# ╔════════════════════════════════════╗
-# ║ TMUX AUTO-SESSION (SSH-AWARE)      ║
-# ╚════════════════════════════════════╝
-# Auto attach/create a tmux session named after the hostname when on SSH.
-# To force locally: export TMUX_AUTOSTART=1
-if [[ -o interactive ]] && command -v tmux-auto >/dev/null 2>&1; then
-  tmux-auto
 fi
 
-# ╔════════════════════════════════════╗
-# ║ LOCAL (machine-specific, not versioned) ║
-# ╚════════════════════════════════════╝
-# Herd, extra PATH, secrets: put in ~/.zshrc.local (copy from ~/.zshrc.local.example)
+# Local, machine-specific overrides (not versioned).
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

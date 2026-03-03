@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Documentar o conjunto de ferramentas CLI versionado via Brewfile (eza, vivid, bat, ripgrep, fd, delta, lazygit) e seus aliases no .zshrc, sem sobrescrever comandos padrão de forma que quebre scripts (ex.: não substituir `cat` globalmente).
+Documentar o conjunto de ferramentas CLI versionado via Brewfile (eza, vivid, bat, ripgrep, fd, delta, lazygit) e seus aliases no shell, sem sobrescrever comandos padrão de forma que quebre scripts (ex.: não substituir `cat` globalmente).
 
 ## Decisões de design
 
@@ -17,7 +17,7 @@ Documentar o conjunto de ferramentas CLI versionado via Brewfile (eza, vivid, ba
 
 - **Fonte dos binários:** Homebrew (Brewfile): eza, vivid, bat, ripgrep, fd, delta, lazygit. Scripts em ~/.local/bin (versionados: tmux-auto) documentados em 16-tmux.md.
 - **Configuração de cores:** vivid generate nord → LS_COLORS; aplicado no início do .zshrc (após Homebrew).
-- **Aliases no .zshrc:** Seção ALIASES; l, lt, find, g, bcat, c. Outros aliases (Laravel, git, system, editor) são específicos do stack e não substituem as ferramentas CLI genéricas.
+- **Aliases em `~/.config/zsh/30-aliases.zsh`:** l, lt, find, g, bcat, c e aliases do stack (Laravel, git, system, editor). Carregado pelo `.zshrc`.
 
 ## Fluxo operacional
 
@@ -39,4 +39,4 @@ Documentar o conjunto de ferramentas CLI versionado via Brewfile (eza, vivid, ba
 ## Estratégia de recuperação
 
 - Reinstalar ferramentas: `brew bundle --file=<Brewfile>` a partir do source dir.
-- Remover alias: comentar a linha no .zshrc e `source ~/.zshrc`; ou invocar com `command find` / `command grep` quando precisar do binário original.
+- Remover alias: comentar a linha em `~/.config/zsh/30-aliases.zsh` e recarregar o shell; ou invocar com `command find` / `command grep` quando precisar do binário original.

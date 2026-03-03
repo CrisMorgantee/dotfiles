@@ -9,7 +9,8 @@ Descrever a pilha do shell: carregamento do Zinit, tema Powerlevel10k com instan
 - **Zinit via Homebrew:** Zinit é carregado a partir de `$HOMEBREW_PREFIX/opt/zinit/zinit.zsh`. Evita clone manual no home; versão controlada pelo Brewfile. Depende de Homebrew estar no PATH antes (bloco no .zshrc logo após o instant prompt).
 - **Powerlevel10k com instant prompt:** O instant prompt é carregado no início do .zshrc (arquivo em XDG_CACHE_HOME) para desenhar o prompt o mais cedo possível e evitar atraso. Nenhum comando que produza output ou peça input pode ficar acima desse bloco. Tema e configuração: Zinit carrega romkatv/powerlevel10k (depth=1, lucid); em seguida `[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh`.
 - **Plugins na ordem:** fzf-tab (wait"0"), zsh-autosuggestions (wait"0", atload _zsh_autosuggest_start), fast-syntax-highlighting (wait"1"). Lucid para não poluir o output. Syntax highlighting com wait maior para manter o prompt rápido.
-- **Keymap emacs:** `bindkey -e` é definido antes dos bindings de history-beginning-search; bindings explícitos para setas (^[[A/^[[B) em emacs e viins para garantir busca no histórico por prefixo independente do modo.
+- **Config modular em `~/.config/zsh/`:** O `.zshrc` mantém apenas o bootstrap (p10k instant prompt, Homebrew, Zinit, plugins, mise/direnv/zoxide) e no final faz `source` de `~/.config/zsh/*.zsh` em ordem lexicográfica. Prefixos numéricos (10-, 20-, 30-, …) determinam ordem. `~/.zshrc.local` continua sendo carregado por último.
+- **Keymap emacs:** `bindkey -e` e os bindings de history-beginning-search ficam em um módulo (`~/.config/zsh/50-keybindings.zsh`) e só rodam em shell interativo.
 
 ## Arquitetura
 
@@ -25,13 +26,10 @@ Sequência no .zshrc:
 8. mise activate zsh; PATH append.
 9. direnv hook zsh.
 10. zoxide init zsh.
-11. HISTFILE e setopts de history.
-12. Aliases e funções.
-13. autoload history-beginning-search; bindkey -e; bindings setas.
-14. tmux-auto (se shell interativo e em SSH: attach/cria sessão tmux nomeada pelo hostname; TMUX_AUTOSTART=1 força local).
-15. source ~/.zshrc.local se existir.
+11. Carregar `~/.config/zsh/*.zsh` (opções, aliases, funções, keybindings, tmux-auto, helpers locais).
+12. source ~/.zshrc.local se existir (override final, máquina específica).
 
-Artefatos: dot_zshrc → ~/.zshrc; dot_p10k.zsh → ~/.p10k.zsh. Zinit e plugins vêm do GitHub via Zinit (powerlevel10k, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting).
+Artefatos: dot_zshrc → ~/.zshrc; dot_p10k.zsh → ~/.p10k.zsh; dot_config/zsh/*.zsh → ~/.config/zsh/*.zsh. Zinit e plugins vêm do GitHub via Zinit (powerlevel10k, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting).
 
 ## Fluxo operacional
 

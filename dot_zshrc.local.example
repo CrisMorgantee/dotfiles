@@ -1,8 +1,5 @@
-# ~/.zshrc.local.example
-# This file IS versioned (template).
-# Copy to ~/.zshrc.local and customize (NOT versioned, machine-specific).
+# Copy to ~/.zshrc.local (machine-specific, not versioned).
 
-# ━━━━━━━ Herd (Laravel Valet-style) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if [[ -d "$HOME/Library/Application Support/Herd/bin" ]]; then
   export PATH="$HOME/Library/Application Support/Herd/bin:$PATH"
 fi
@@ -10,3 +7,4 @@ fi
 # Herd PHP config (adjust paths/versions to your install)
 # export HERD_PHP_84_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/84/"
 # export HERD_PHP_82_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/82/"
+

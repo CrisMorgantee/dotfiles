@@ -6,7 +6,7 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 
 ## Decisões de design
 
-- **Ordem de carregamento no .zshrc:** (1) Instant prompt do Powerlevel10k (cedo, sem output acima que possa bloquear); (2) shellenv do Homebrew para Apple Silicon; (3) vivid/LS_COLORS se disponível; (4) compinit (em cache); (5) Zinit; (6) tema Powerlevel10k e ~/.p10k.zsh; (7) plugins (fzf-tab, zsh-autosuggestions, fast-syntax-highlighting); (8) mise activate; (9) append de PATH para ~/.composer/vendor/bin e ~/.local/bin; (10) direnv hook; (11) zoxide init; (12) history e keybindings; (13) tmux-auto (SSH-aware: attach/cria sessão por hostname se em SSH); (14) source ~/.zshrc.local se existir. Essa ordem mantém o prompt rápido, ferramentas no PATH antes do uso e evita lógica duplicada de PATH.
+- **Ordem de carregamento no .zshrc:** (1) Instant prompt do Powerlevel10k (cedo, sem output acima que possa bloquear); (2) shellenv do Homebrew para Apple Silicon; (3) vivid/LS_COLORS se disponível; (4) compinit (em cache); (5) Zinit; (6) tema Powerlevel10k e ~/.p10k.zsh; (7) plugins (fzf-tab, zsh-autosuggestions, fast-syntax-highlighting); (8) mise activate; (9) append de PATH para ~/.composer/vendor/bin e ~/.local/bin; (10) direnv hook; (11) zoxide init; (12) carregar `~/.config/zsh/*.zsh` (opções/aliases/funções/keybindings/tmux-auto/helpers); (13) source ~/.zshrc.local se existir (override final). Essa ordem mantém o prompt rápido, ferramentas no PATH antes do uso e evita lógica duplicada de PATH.
 - **Construção única do PATH:** Homebrew primeiro (do shellenv), depois shims do mise (de `mise activate zsh`), depois um append explícito para bins do usuário. Sem `typeset -U PATH`; sem exports de PATH espalhados.
 
 ## Arquitetura
@@ -16,7 +16,8 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 
 | Artefato                            | Target                 | Propósito                                                                                        |
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------ |
-| dot_zshrc                           | ~/.zshrc               | Config do shell, plugins, histórico, aliases, tmux-auto (SSH-aware)                              |
+| dot_zshrc                           | ~/.zshrc               | Bootstrap do shell (p10k/Zinit/plugins/mise/direnv/zoxide) + loader de `~/.config/zsh/*.zsh`     |
+| dot_config/zsh/*.zsh                | ~/.config/zsh/*.zsh    | Opções/aliases/funções/keybindings/tmux-auto/helpers (carregados pelo `.zshrc`)                  |
 | dot_gitconfig                       | ~/.gitconfig           | Config global do Git (pull.rebase, delta, aliases etc.)                                          |
 | dot_p10k.zsh                        | ~/.p10k.zsh            | Tema Powerlevel10k (Nord, estilo Pure)                                                           |
 | dot_tmux.conf                       | ~/.tmux.conf           | Config tmux (status minimal, TPM, nordtheme, tmux-yank)                                          |
@@ -43,7 +44,7 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 
 **Sequência de bootstrap:** Instalar chezmoi → clonar repo → fornecer data (name, email para run_once_30) → `chezmoi init --apply` ou `chezmoi apply` → run_once 10, 20, 30, 40 executam na ordem (10: Homebrew + Brewfile; 20: defaults macOS; 30: Git; 40: TPM do tmux). Abrir Warp (ou terminal), iniciar Zsh; .zshrc roda na ordem acima.
 
-**Inicialização do shell (resumida):** instant prompt → brew shellenv → compinit → zinit → p10k + config → plugins → mise → PATH append → direnv hook → zoxide → opts de history + bindkeys → tmux-auto (se SSH) → .zshrc.local.
+**Inicialização do shell (resumida):** instant prompt → brew shellenv → compinit → zinit → p10k + config → plugins → mise → PATH append → direnv hook → zoxide → `~/.config/zsh/*.zsh` → `.zshrc.local`.
 
 ## Validação
 

@@ -17,7 +17,9 @@ Configurar o histórico do Zsh em um único arquivo estável (`~/.zsh_history`),
 - setopts: APPEND_HISTORY, INC_APPEND_HISTORY, HIST_IGNORE_DUPS, HIST_IGNORE_SPACE, HIST_REDUCE_BLANKS, EXTENDED_HISTORY. SHARE_HISTORY é explicitamente desativado (unsetopt).
 - Keybindings: history-beginning-search-backward/forward nas setas; bindkey -e; bindings em viins para segurança.
 
-Tudo definido em dot_zshrc (blocos SETTINGS e HISTORY SEARCH).
+Atual: definido em módulos carregados pelo `.zshrc`:
+- `~/.config/zsh/10-options.zsh` (HISTFILE, setopts)
+- `~/.config/zsh/50-keybindings.zsh` (history-beginning-search + bindkeys)
 
 ## Fluxo operacional
 
@@ -40,5 +42,5 @@ Tudo definido em dot_zshrc (blocos SETTINGS e HISTORY SEARCH).
 
 ## Estratégia de recuperação
 
-- Restaurar setopts: garantir que o bloco de history no .zshrc está conforme o source; `chezmoi apply` se necessário.
+- Restaurar setopts/bindings: garantir que `~/.config/zsh/10-options.zsh` e `~/.config/zsh/50-keybindings.zsh` estão conforme o source; `chezmoi apply` se necessário.
 - Se os bindings não funcionarem: verificar se `bindkey -e` está ativo e se as sequências ^[[A/^[[B] correspondem ao terminal (Warp/iTerm2 em geral usam as mesmas).

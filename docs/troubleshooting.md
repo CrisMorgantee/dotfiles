@@ -22,7 +22,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** `echo $HISTFILE` em dois terminais deve ser idêntico (ex.: ~/.zsh_history). `setopt | grep -E 'append|inc_append'` deve mostrar APPEND_HISTORY e INC_APPEND_HISTORY.
 
-**Correção:** Se o objetivo é **persistência**: garantir que o bloco de history no .zshrc está ativo (setopt APPEND_HISTORY, INC_APPEND_HISTORY) e que `$HOME` é gravável. Se o objetivo é **live-sharing** entre shells: habilitar `setopt SHARE_HISTORY` no dot_zshrc.
+**Correção:** Se o objetivo é **persistência**: garantir que `~/.config/zsh/10-options.zsh` está ativo (setopt APPEND_HISTORY, INC_APPEND_HISTORY) e que `$HOME` é gravável. Se o objetivo é **live-sharing** entre shells: habilitar `setopt SHARE_HISTORY` no mesmo módulo (ou voltar para o `.zshrc`, se preferir centralizar).
 
 **Reverter:** Restaurar dot_zshrc via `chezmoi apply`.
 
@@ -94,6 +94,6 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** `command -v tmux-auto` deve resolver para ~/.local/bin. Em SSH, `echo $SSH_CONNECTION` não vazio e `echo $TMUX` vazio antes do attach.
 
-**Correção:** Garantir que o .zshrc exporta PATH com $HOME/.local/bin antes do bloco TMUX AUTO-SESSION. Aplicar dotfiles: `chezmoi add dot_local/bin/executable_tmux-auto` e `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
+**Correção:** Garantir que o `.zshrc` exporta PATH com `$HOME/.local/bin` antes de carregar `~/.config/zsh/60-tmux-auto.zsh`. Aplicar dotfiles: `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
 
-**Reverter:** Comentar o bloco "TMUX AUTO-SESSION" no dot_zshrc. Ver 16-tmux.md.
+**Reverter:** Comentar/remover `~/.config/zsh/60-tmux-auto.zsh`. Ver 16-tmux.md.
