@@ -11,6 +11,7 @@ Descrever a pilha do shell: carregamento do Zinit, tema Powerlevel10k com instan
 - **Plugins na ordem:** fzf-tab (wait"0"), zsh-autosuggestions (wait"0", atload _zsh_autosuggest_start), fast-syntax-highlighting (wait"1"). Lucid para não poluir o output. Syntax highlighting com wait maior para manter o prompt rápido.
 - **Config modular em `~/.config/zsh/`:** O `.zshrc` mantém apenas o bootstrap (p10k instant prompt, Homebrew, Zinit, plugins, mise/direnv/zoxide) e no final faz `source` de `~/.config/zsh/*.zsh` em ordem lexicográfica. Prefixos numéricos (10-, 20-, 30-, …) determinam ordem. `~/.zshrc.local` continua sendo carregado por último.
 - **Keymap emacs:** `bindkey -e` e os bindings de history-beginning-search ficam em um módulo (`~/.config/zsh/50-keybindings.zsh`) e só rodam em shell interativo.
+- **fzf:** Defaults e integrações ficam em `~/.config/zsh/25-fzf.zsh`. Os atalhos clássicos do fzf (Ctrl-R/Ctrl-T/Alt-C) ficam em `~/.config/zsh/55-fzf-keybindings.zsh`, carregando apenas `key-bindings.zsh` (sem `completion.zsh`) para não conflitar com `fzf-tab`.
 
 ## Arquitetura
 
@@ -26,7 +27,7 @@ Sequência no .zshrc:
 8. mise activate zsh; PATH append.
 9. direnv hook zsh.
 10. zoxide init zsh.
-11. Carregar `~/.config/zsh/*.zsh` (opções, aliases, funções, keybindings, tmux-auto, helpers locais).
+11. Carregar `~/.config/zsh/*.zsh` (opções, dev-infra, fzf, aliases, funções, keybindings, fzf keybindings, tmux-auto, helpers locais).
 12. source ~/.zshrc.local se existir (override final, máquina específica).
 
 Artefatos: dot_zshrc → ~/.zshrc; dot_p10k.zsh → ~/.p10k.zsh; dot_config/zsh/*.zsh → ~/.config/zsh/*.zsh. Zinit e plugins vêm do GitHub via Zinit (powerlevel10k, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting).

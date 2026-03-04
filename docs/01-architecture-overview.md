@@ -6,7 +6,7 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 
 ## Decisões de design
 
-- **Ordem de carregamento no .zshrc:** (1) Instant prompt do Powerlevel10k (cedo, sem output acima que possa bloquear); (2) shellenv do Homebrew para Apple Silicon; (3) vivid/LS_COLORS se disponível; (4) compinit (em cache); (5) Zinit; (6) tema Powerlevel10k e ~/.p10k.zsh; (7) plugins (fzf-tab, zsh-autosuggestions, fast-syntax-highlighting); (8) mise activate; (9) append de PATH para ~/.composer/vendor/bin e ~/.local/bin; (10) direnv hook; (11) zoxide init; (12) carregar `~/.config/zsh/*.zsh` (opções/aliases/funções/keybindings/tmux-auto/helpers); (13) source ~/.zshrc.local se existir (override final). Essa ordem mantém o prompt rápido, ferramentas no PATH antes do uso e evita lógica duplicada de PATH.
+- **Ordem de carregamento no .zshrc:** (1) Instant prompt do Powerlevel10k (cedo, sem output acima que possa bloquear); (2) shellenv do Homebrew para Apple Silicon; (3) vivid/LS_COLORS se disponível; (4) compinit (em cache); (5) Zinit; (6) tema Powerlevel10k e ~/.p10k.zsh; (7) plugins (fzf-tab, zsh-autosuggestions, fast-syntax-highlighting); (8) mise activate; (9) append de PATH para ~/.composer/vendor/bin e ~/.local/bin; (10) direnv hook; (11) zoxide init; (12) carregar `~/.config/zsh/*.zsh` (inclui fzf defaults/integrações e fzf keybindings); (13) source ~/.zshrc.local se existir (override final). Essa ordem mantém o prompt rápido, ferramentas no PATH antes do uso e evita lógica duplicada de PATH.
 - **Construção única do PATH:** Homebrew primeiro (do shellenv), depois shims do mise (de `mise activate zsh`), depois um append explícito para bins do usuário. Sem `typeset -U PATH`; sem exports de PATH espalhados.
 
 ## Arquitetura

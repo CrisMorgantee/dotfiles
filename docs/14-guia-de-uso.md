@@ -181,6 +181,24 @@ layout python # projeto Python
 
 - **Uso:** Ao pressionar Tab em comandos que têm muitas opções (arquivos, branches, etc.), o fzf-tab abre um seletor interativo. Navegue com setas ou digite para filtrar; Enter escolhe o item.
 - **Não exige configuração no projeto;** já ativo pelo Zinit no .zshrc.
+- **Warp:** se o Tab não abrir o seletor, rode `exec zsh` para recarregar o shell (o plugin pode carregar de forma assíncrona).
+
+### fzf (atalhos e funções)
+
+- **Tab:** continua sendo do **fzf-tab** (completion do Zsh).
+- **Atalhos clássicos do fzf:** `Ctrl-R` (histórico), `Ctrl-T` (arquivos no prompt), `Alt-C` (cd) — habilitados via módulo `~/.config/zsh/55-fzf-keybindings.zsh` sem ativar completion do fzf (evita conflito com fzf-tab).
+- **Comandos úteis:**
+  - `nv [query]`: seleciona **arquivo ou diretório** com fzf e abre no Neovim.
+  - `nv --no-dir [query]`: limita a seleção a **arquivos** (útil se você quer só abrir arquivos).
+  - `kp`: seleciona processo(s) e envia SIGTERM.
+  - `kp -f` / `kp --force`: envia SIGKILL (kill -9) — use só quando necessário.
+  - `gb`: troca de branch com preview.
+  - `gcm`: navegador de commits (seleciona e executa `git show`).
+  - `gcm --copy`: copia o hash do commit selecionado (usa `pbcopy` quando disponível).
+  - `dps [logs|exec|stop]`: selector de containers Docker.
+  - `sshf`: selector de hosts do `~/.ssh/config`.
+  - `ts [nome]`: selector/attach de sessão tmux (ou cria sessão).
+  - `af [args...]`: selector de comandos do `php artisan` e executa o comando escolhido (usa JSON quando disponível — compatível com `commands` como lista ou mapa — com fallback para `artisan list --raw`).
 
 ### Histórico (setas com prefixo)
 
