@@ -1,4 +1,121 @@
-gc() { git commit -m "${1:?commit message required}"; }
+gc() {
+  emulate -L zsh
+  setopt pipefail no_unset
+
+  gc_help() {
+    cat <<'EOF'
+gc — git commit helper
+
+Uso:
+  gc [-s] [-a|-i] [-p] "mensagem" [-- <args do git commit>]
+
+Flags:
+  -h, --help        Mostra esta ajuda
+  -s, --skip        Pula hooks (SKIP_GIT_HOOKS=1) no commit (e no push se usar -p)
+  -a, --add         Stage tudo com: git add -A
+  -i, --interactive Stage interativo com: git add -p  (recomendado)
+  -p, --push        Faz push após commitar (cria upstream com -u origin HEAD se necessário)
+
+Exemplos:
+  gc "corrige hooks"
+  gc -i "refactor: staged-only"
+  gc -a "update deps"
+  gc -ap "update deps"         # add -A + commit + push
+  gc -sap "hotfix urgente"     # skip hooks + add -A + push
+  gc -s "msg" -- --no-verify   # passa args extras para git commit (opcional)
+
+Notas:
+- Sem -a/-i, o gc COMITA apenas o que já estiver staged.
+- Se não houver nada staged, ele falha e sugere git add -p / gc -i.
+- -a e -i são mutuamente exclusivos.
+EOF
+  }
+
+  local skip=0 add_all=0 add_interactive=0 do_push=0
+  local -a commit_extra=()
+
+  # Parse flags (suporta -sap e flags longas)
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help) gc_help; return 0 ;;
+      --skip) skip=1; shift ;;
+      --add) add_all=1; shift ;;
+      --interactive|--patch) add_interactive=1; shift ;;
+      --push) do_push=1; shift ;;
+      --) shift; break ;;
+      -[!-]*)
+        local flags="${1#-}"
+        local i ch
+        for (( i=1; i<=${#flags}; i++ )); do
+          ch="${flags[i]}"
+          case "$ch" in
+            h) gc_help; return 0 ;;
+            s) skip=1 ;;
+            a) add_all=1 ;;
+            i) add_interactive=1 ;;
+            p) do_push=1 ;;
+            *)
+              print -u2 "gc: flag inválida: -$ch"
+              print -u2 "dica: gc -h"
+              return 2
+              ;;
+          esac
+        done
+        shift
+        ;;
+      *) break ;;
+    esac
+  done
+
+  local msg="${1:-}"
+  if [[ -z "$msg" ]]; then
+    print -u2 "gc: commit message required"
+    print -u2 "dica: gc -h"
+    return 2
+  fi
+  shift
+
+  # argumentos extras opcionais para git commit (após --)
+  if (( $# )) && [[ "$1" == "--" ]]; then
+    shift
+  fi
+  commit_extra=("$@")
+
+  if (( add_all && add_interactive )); then
+    print -u2 "gc: use apenas um: -a (add -A) OU -i (add -p)."
+    return 2
+  fi
+
+  if (( add_interactive )); then
+    git add -p || return $?
+  elif (( add_all )); then
+    git add -A || return $?
+  fi
+
+  if git diff --cached --quiet; then
+    print -u2 "gc: nada staged."
+    print -u2 "  dica: git add -p   (recomendado)  ou  gc -i \"msg\""
+    print -u2 "        git add -A                   ou  gc -a \"msg\""
+    return 1
+  fi
+
+  local hook_env=()
+  if (( skip )); then
+    hook_env=(SKIP_GIT_HOOKS=1)
+  fi
+
+  "${hook_env[@]}" git commit -m "$msg" "${commit_extra[@]}" || return $?
+
+  if (( do_push )); then
+    local upstream
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)"
+    if [[ -z "$upstream" ]]; then
+      "${hook_env[@]}" git push -u origin HEAD
+    else
+      "${hook_env[@]}" git push
+    fi
+  fi
+}
 
 # link_project [slug|--no-open|--print]
 link_project() {
