@@ -195,6 +195,12 @@ layout python # projeto Python
   - `gb`: troca de branch com preview.
   - `gcm`: navegador de commits (seleciona e executa `git show`).
   - `gcm --copy`: copia o hash do commit selecionado (usa `pbcopy` quando disponível).
+  - `gc "mensagem"`: helper de commit (comita só o que já estiver staged). Flags comuns:
+    - `gc -i "msg"`: stage interativo (`git add -p`) + commit
+    - `gc -a "msg"`: stage tudo (`git add -A`) + commit
+    - `gc -p "msg"`: push após commitar
+    - `gc -s "msg"`: define `SKIP_GIT_HOOKS=1` (hooks que respeitam essa variável “pulam”)
+    - `gc -n "msg"`: passa `--no-verify` para `git commit` (e para `git push` quando usar `-p`)
   - `dps [logs|exec|stop]`: selector de containers Docker.
   - `sshf`: selector de hosts do `~/.ssh/config`.
   - `ts [nome]`: selector/attach de sessão tmux (ou cria sessão).

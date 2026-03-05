@@ -7,11 +7,12 @@ gc() {
 gc — git commit helper
 
 Uso:
-  gc [-s] [-a|-i] [-p] "mensagem" [-- <args do git commit>]
+  gc [-s] [-n] [-a|-i] [-p] "mensagem" [-- <args do git commit>]
 
 Flags:
   -h, --help        Mostra esta ajuda
   -s, --skip        Pula hooks (SKIP_GIT_HOOKS=1) no commit (e no push se usar -p)
+  -n, --no-verify   Passa --no-verify pro git commit (e pro git push se usar -p)
   -a, --add         Stage tudo com: git add -A
   -i, --interactive Stage interativo com: git add -p  (recomendado)
   -p, --push        Faz push após commitar (cria upstream com -u origin HEAD se necessário)
@@ -23,6 +24,7 @@ Exemplos:
   gc -ap "update deps"         # add -A + commit + push
   gc -sap "hotfix urgente"     # skip hooks + add -A + push
   gc -s "msg" -- --no-verify   # passa args extras para git commit (opcional)
+  gc -n "msg"                  # equivale a: git commit --no-verify ...
 
 Notas:
 - Sem -a/-i, o gc COMITA apenas o que já estiver staged.
@@ -31,7 +33,7 @@ Notas:
 EOF
   }
 
-  local skip=0 add_all=0 add_interactive=0 do_push=0
+  local skip=0 no_verify=0 add_all=0 add_interactive=0 do_push=0
   local -a commit_extra=()
 
   # Parse flags (suporta -sap e flags longas)
@@ -39,6 +41,7 @@ EOF
     case "$1" in
       -h|--help) gc_help; return 0 ;;
       --skip) skip=1; shift ;;
+      --no-verify) no_verify=1; shift ;;
       --add) add_all=1; shift ;;
       --interactive|--patch) add_interactive=1; shift ;;
       --push) do_push=1; shift ;;
@@ -51,6 +54,7 @@ EOF
           case "$ch" in
             h) gc_help; return 0 ;;
             s) skip=1 ;;
+            n) no_verify=1 ;;
             a) add_all=1 ;;
             i) add_interactive=1 ;;
             p) do_push=1 ;;
@@ -104,15 +108,26 @@ EOF
     hook_env=(SKIP_GIT_HOOKS=1)
   fi
 
-  "${hook_env[@]}" git commit -m "$msg" "${commit_extra[@]}" || return $?
+  if (( no_verify )); then
+    if [[ " ${commit_extra[*]} " != *" --no-verify "* ]] && [[ " ${commit_extra[*]} " != *" -n "* ]]; then
+      commit_extra=(--no-verify "${commit_extra[@]}")
+    fi
+  fi
+
+  env "${hook_env[@]}" git commit -m "$msg" "${commit_extra[@]}" || return $?
 
   if (( do_push )); then
+    local -a push_extra=()
+    if (( no_verify )); then
+      push_extra=(--no-verify)
+    fi
+
     local upstream
     upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)"
     if [[ -z "$upstream" ]]; then
-      "${hook_env[@]}" git push -u origin HEAD
+      env "${hook_env[@]}" git push "${push_extra[@]}" -u origin HEAD
     else
-      "${hook_env[@]}" git push
+      env "${hook_env[@]}" git push "${push_extra[@]}"
     fi
   fi
 }
