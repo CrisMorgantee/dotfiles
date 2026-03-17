@@ -82,7 +82,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** `git config --global user.name` e `user.email`; se vazios, identidade não foi setada.
 
-**Correção:** Fornecer data ao chezmoi: criar ou editar config com [data] name e email, ou usar `chezmoi apply -D name="..." -D email="..."`. Se run_once_30 já tiver rodado, definir manualmente: `git config --global user.name "..." user.email "..."`. Documentado em 02-bootstrap-from-zero.md e 11-chezmoi-architecture.md.
+**Correção:** Fornecer data ao chezmoi: criar ou editar `~/.config/chezmoi/chezmoi.toml` com `[data]`, `name` e `email`, e depois rodar `chezmoi apply`. Se run_once_30 já tiver rodado, definir manualmente: `git config --global user.name "..."` e `git config --global user.email "..."`. Documentado em 02-bootstrap-from-zero.md e 11-chezmoi-architecture.md.
 
 **Reverter:** `git config --global --unset user.name user.email` se quiser remover; depois redefinir conforme desejado.
 

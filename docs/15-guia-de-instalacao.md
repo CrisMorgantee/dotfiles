@@ -68,24 +68,43 @@ Deve aparecer o número da versão (ex.: `chezmoi version 2.x.x`).
 
 Neste passo você vai dizer ao chezmoi **qual repositório** usar (a URL do seu repo de dotfiles) e informar **nome e e-mail** para o Git. O chezmoi vai clonar o repo, copiar os arquivos de configuração para o lugar certo e rodar os scripts que instalam Homebrew, pacotes e configuram o sistema.
 
-**Substitua** na linha abaixo a URL do repositório, o nome e o e-mail pelos seus (ou use o exemplo com os dados deste ambiente):
-
-Comando único (uma linha):
+**Antes do `init`**, crie a config local do chezmoi com o seu nome e e-mail. O run_once do Git lê esses valores de `[data]`.
 
 ```bash
-chezmoi init --apply -D name="Seu Nome" -D email="seu@email.com" -- URL_DO_SEU_REPO
+mkdir -p ~/.config/chezmoi
+```
+
+```bash
+cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
+[data]
+name = "Seu Nome"
+email = "seu@email.com"
+EOF
+```
+
+Depois disso, rode o `init --apply` com a URL do repositório:
+
+```bash
+chezmoi init --apply URL_DO_SEU_REPO
 ```
 
 **Exemplo** (repositório e identidade deste ambiente):
 
 ```bash
-chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.com.br" -- git@github.com:CrisMorgantee/dotfiles.git
+mkdir -p ~/.config/chezmoi
+cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
+[data]
+name = "Cristiano Morgante"
+email = "cristiano@morgante.com.br"
+EOF
+
+chezmoi init --apply git@github.com:CrisMorgantee/dotfiles.git
 ```
 
 Se preferir HTTPS em vez de SSH:
 
 ```bash
-chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.com.br" -- https://github.com/CrisMorgantee/dotfiles.git
+chezmoi init --apply https://github.com/CrisMorgantee/dotfiles.git
 ```
 
 **O que acontece:**
@@ -103,13 +122,13 @@ chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.c
 **Se aparecer erro de rede ou de Git:** Verifique a URL do repo, a conexão e as credenciais (SSH ou HTTPS). Depois disso, você pode tentar de novo com:
 
 ```bash
-chezmoi apply -D name="Seu Nome" -D email="seu@email.com"
+chezmoi apply
 ```
 
-(Isso reaplica a config; os run_once que já rodaram não repetem as mesmas ações destrutivas.) Exemplo com os dados deste ambiente:
+(Isso reaplica a config; os run_once que já rodaram não repetem as mesmas ações destrutivas. Se precisar ajustar nome/e-mail, edite `~/.config/chezmoi/chezmoi.toml` antes do `apply`.) Exemplo com os dados deste ambiente:
 
 ```bash
-chezmoi apply -D name="Cristiano Morgante" -D email="cristiano@morgante.com.br"
+chezmoi apply
 ```
 
 ---
@@ -166,7 +185,7 @@ Rode os comandos abaixo no Warp (ou em qualquer terminal configurado para Zsh). 
 
 **Histórico:** Rode `echo $HISTFILE` (deve ser `~/.zsh_history`). Digite um prefixo (ex.: `cd `) e pressione **Seta para cima/baixo** para validar o `history-beginning-search`.
 
-**Se algo falhar:** Consulte [troubleshooting.md](troubleshooting.md). Os problemas mais comuns são: Homebrew não no PATH (rodar o run_once_10), identidade do Git vazia (passar `name` e `email` no apply), ou prompt não carregando (verificar ordem do .zshrc e instalação do Zinit).
+**Se algo falhar:** Consulte [troubleshooting.md](troubleshooting.md). Os problemas mais comuns são: Homebrew não no PATH (rodar o run_once_10), identidade do Git vazia (preencher `~/.config/chezmoi/chezmoi.toml` com `name` e `email` e reaplicar), ou prompt não carregando (verificar ordem do .zshrc e instalação do Zinit).
 
 ---
 
@@ -181,10 +200,18 @@ xcode-select -p || xcode-select --install
 # 2) Instalar chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)"
 
-# 3) Aplicar dotfiles (exemplo: Cristiano Morgante / CrisMorgantee/dotfiles)
-chezmoi init --apply -D name="Cristiano Morgante" -D email="cristiano@morgante.com.br" -- git@github.com:CrisMorgantee/dotfiles.git
+# 3) Criar config local do chezmoi com sua identidade
+mkdir -p ~/.config/chezmoi
+cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
+[data]
+name = "Cristiano Morgante"
+email = "cristiano@morgante.com.br"
+EOF
 
-# 4) Abrir o Warp e usar Zsh; opcional: config local
+# 4) Aplicar dotfiles
+chezmoi init --apply git@github.com:CrisMorgantee/dotfiles.git
+
+# 5) Abrir o Warp e usar Zsh; opcional: config local
 cp ~/.zshrc.local.example ~/.zshrc.local   # só se for usar config local
 ```
 
