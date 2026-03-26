@@ -1,8 +1,9 @@
 # Dev infra helpers (Docker Compose) — safe to source from ~/.zshrc
 
-DEV_INFRA_DIR="$HOME/workspace/tools/dev-infra"
-MYSQL_CONTAINER="dev-mysql"
-MYSQL_ROOT_PASSWORD="root"
+# Local Docker-only defaults. Override in ~/.zshrc.local when needed.
+: "${DEV_INFRA_DIR:=$HOME/workspace/tools/dev-infra}"
+: "${MYSQL_CONTAINER:=dev-mysql}"
+: "${MYSQL_ROOT_PASSWORD:=root}"
 
 __docker_compose() {
   emulate -L zsh

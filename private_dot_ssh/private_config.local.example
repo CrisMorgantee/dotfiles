@@ -1,0 +1,31 @@
+# Copy to ~/.ssh/config.local and adjust to your environment.
+#
+# This file is the right place for:
+# - private hosts and infrastructure aliases
+# - extra GitHub aliases when using multiple SSH keys
+# - app/repo-specific IdentityFile mappings
+
+# Example: one SSH key for the dotfiles repo
+Host github-dotfiles
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_dotfiles
+  IdentitiesOnly yes
+
+# Example: one SSH key for the Neovim config repo
+Host github-svim
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_svim
+  IdentitiesOnly yes
+
+# Example: private host aliases
+Host app-prod
+  HostName example.com
+  User deploy
+  IdentityFile ~/.ssh/id_ed25519_app
+
+Host app-root-prod
+  HostName example.com
+  User root
+  IdentityFile ~/.ssh/id_ed25519_app

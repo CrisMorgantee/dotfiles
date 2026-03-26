@@ -1,11 +1,9 @@
-# Added by OrbStack: 'orb' SSH host for Linux machines
-# This only works if it's at the top of ssh_config (before any Host blocks).
-# This won't be added again if you remove it.
+# Public-safe SSH config.
+# Keep private hosts, usernames and identity files in ~/.ssh/config.local.
+
+# Added by OrbStack: keep at the top when present.
 Include ~/.orbstack/ssh/config
 
-# =========================
-# Global defaults
-# =========================
 Host *
   AddKeysToAgent yes
   UseKeychain yes
@@ -13,60 +11,11 @@ Host *
   ServerAliveInterval 30
   ServerAliveCountMax 3
 
-# =========================
-# GitHub (sua conta)
-# =========================
 Host github.com
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519
 
-# =========================
-# SIMPLIFY (seus servidores)
-# =========================
-Host st-*
-  User cristiano
-  IdentityFile ~/.ssh/id_ed25519_srv_simplify
-
-Host st-root-*
-  User root
-  IdentityFile ~/.ssh/id_ed25519_srv_simplify
-
-Host st-prod
-  HostName st.dev.br
-
-Host st-root-prod
-  HostName st.dev.br
-
-# =========================
-# DIGISONIC (3 servidores)
-# =========================
-Host dgs-*
-  User cristiano
-  IdentityFile ~/.ssh/id_ed25519_srv_digisonic
-
-Host dgs-root-*
-  User root
-  IdentityFile ~/.ssh/id_ed25519_srv_digisonic
-
-Host dgs-digisonic
-  HostName digisonic.com.br
-
-Host dgs-educa
-  HostName educa.ai
-
-Host dgs-veloq
-  HostName veloq.com.br
-
-Host dgs-sip
-  HostName sip.veloq.com.br
-
-# Root aliases (só se precisar)
-Host dgs-root-digisonic
-  HostName digisonic.com.br
-
-Host dgs-root-educa
-  HostName educa.ai
-
-Host dgs-root-veloq
-  HostName veloq.com.br
+# Private/work-specific hosts should live outside the public repo.
+IgnoreUnknown Include
+Include ~/.ssh/config.local

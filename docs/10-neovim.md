@@ -2,25 +2,26 @@
 
 ## Objetivo
 
-Documentar a configuração do Neovim neste ambiente: config em ~/.config/nvim obtida via chezmoi external (repositório svim), sem NVIM_APPNAME e sem wrapper custom; editor global do Git (core.editor nvim).
+Documentar a configuração do Neovim neste ambiente: config em ~/.config/nvim obtida via chezmoi external (repositório `git@github.com:Simplify-Technology/svim.git`), sem NVIM_APPNAME e sem wrapper custom; editor global do Git (core.editor nvim).
 
 ## Decisões de design
 
-- **Config via external:** O arquivo .chezmoiexternal.toml declara que o target .config/nvim é um repositório git externo: `git@github.com:Simplify-Technology/svim.git`, refresh a cada 168h. O chezmoi clona ou atualiza esse repo em ~/.config/nvim. Nenhum arquivo de config do nvim é versionado como dotfile dentro do repo principal do chezmoi; apenas a referência externa.
+- **Config via external:** O arquivo .chezmoiexternal.toml declara que o target .config/nvim é o repositório git externo `git@github.com:Simplify-Technology/svim.git`, com refresh a cada 168h. O chezmoi clona ou atualiza esse repo em ~/.config/nvim. Nenhum arquivo de config do nvim é versionado como dotfile dentro do repo principal do chezmoi; apenas a referência externa.
+- **Dependência de acesso GitHub:** Para usar este ambiente como está, o usuário precisa de acesso ao repositório `Simplify-Technology/svim.git`. Se não tiver, deve ajustar `.chezmoiexternal.toml` para outro repo.
 - **Sem NVIM_APPNAME:** Neovim é invocado como `nvim`; não há uso de NVIM_APPNAME para config alternativa. A config é a padrão em ~/.config/nvim.
 - **Sem wrapper custom:** Não há script ou alias que invoque nvim com opções especiais além das do próprio config (init.lua etc. dentro do repo svim). O alias `neoconfig` no .zshrc apenas faz `cd ~/.config/nvim && nvim init.lua` para editar a config.
-- **core.editor:** dot_gitconfig e run_once_30 definem core.editor como "nvim" para que Git abra o editor padrão com Neovim.
+- **core.editor:** `dot_gitconfig.tmpl` e run_once_30 definem core.editor como "nvim" para que Git abra o editor padrão com Neovim.
 
 ## Arquitetura
 
-- **Fonte da config:** Repositório externo svim (Simplify-Technology/svim). Definido em .chezmoiexternal.toml no source do chezmoi.
+- **Fonte da config:** Repositório externo `git@github.com:Simplify-Technology/svim.git`, definido em `.chezmoiexternal.toml` no source do chezmoi.
 - **Target:** ~/.config/nvim (diretório gerenciado pelo chezmoi como external; conteúdo vem do clone do svim).
 - **Binário:** Neovim instalado via Homebrew (Brewfile); disponível como `nvim` após run_once_10.
 - **Fluxo chezmoi:** No `chezmoi apply`, o chezmoi verifica/atualiza o external conforme refreshPeriod. Antes disso, o hook `.chezmoiscripts/run_once_before_05-create-xdg-dirs.sh` garante que `~/.config` e `~/.config/nvim` existam em máquinas limpas para evitar falhas no primeiro bootstrap.
 
 ## Fluxo operacional
 
-- Após primeiro apply: o hook inicial cria `~/.config` e `~/.config/nvim`, depois o chezmoi clona o repo svim em ~/.config/nvim (ou atualiza se já existir). Neovim já está instalado pelo Brewfile.
+- Após primeiro apply: o hook inicial cria `~/.config` e `~/.config/nvim`, depois o chezmoi clona `git@github.com:Simplify-Technology/svim.git` em ~/.config/nvim (ou atualiza se já existir). Neovim já está instalado pelo Brewfile.
 - Edição da config do nvim: editar arquivos em ~/.config/nvim (ou no clone do svim e fazer push; no próximo apply o chezmoi pode puxar atualizações conforme refreshPeriod). Ou usar `neoconfig` para abrir init.lua.
 - Git: ao executar `git commit` ou similar, Git invoca `nvim` como editor.
 
@@ -33,9 +34,9 @@ Documentar a configuração do Neovim neste ambiente: config em ~/.config/nvim o
 
 ## Modos de falha
 
-- **~/.config/nvim ausente ou vazio:** External não clonado (rede, SSH, permissões) ou refresh não executado. Garantir que o hook inicial criou `~/.config/nvim`, executar `chezmoi apply` novamente e verificar acesso a `git@github.com:Simplify-Technology/svim.git`.
+- **~/.config/nvim ausente ou vazio:** External não clonado (rede, SSH, permissões) ou refresh não executado. Garantir que o hook inicial criou `~/.config/nvim`, executar `chezmoi apply` novamente e verificar acesso a `git@github.com:Simplify-Technology/svim.git` ou ao repositório configurado em `.chezmoiexternal.toml`.
 - **nvim não encontrado:** Brewfile não aplicado ou run_once_10 falhou. Instalar com `brew install neovim` ou brew bundle.
-- **Editor do Git não abre nvim:** core.editor não está como nvim. Verificar dot_gitconfig e run_once_30; `git config --global core.editor nvim`.
+- **Editor do Git não abre nvim:** core.editor não está como nvim. Verificar `dot_gitconfig.tmpl` e run_once_30; `git config --global core.editor nvim`.
 
 ## Estratégia de recuperação
 

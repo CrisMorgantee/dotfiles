@@ -202,7 +202,7 @@ layout python # projeto Python
     - `gc -s "msg"`: define `SKIP_GIT_HOOKS=1` (hooks que respeitam essa variável “pulam”)
     - `gc -n "msg"`: passa `--no-verify` para `git commit` (e para `git push` quando usar `-p`)
   - `dps [logs|exec|stop]`: selector de containers Docker.
-  - `sshf`: selector de hosts do `~/.ssh/config`.
+  - `sshf`: selector de hosts do `~/.ssh/config` e `~/.ssh/config.local`.
   - `ts [nome]`: selector/attach de sessão tmux (ou cria sessão).
   - `af [args...]`: selector de comandos do `php artisan` e executa o comando escolhido (usa JSON quando disponível — compatível com `commands` como lista ou mapa — com fallback para `artisan list --raw`).
 

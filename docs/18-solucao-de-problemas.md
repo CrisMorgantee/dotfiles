@@ -46,7 +46,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** `git config --global core.pager` deve retornar delta. `which delta` deve resolver. `git log` ou `git diff` devem exibir com side-by-side e cores (Nord).
 
-**Correção:** Instalar delta via `brew install delta` ou brew bundle. Rodar run_once_30 manualmente (com path do source correto) ou setar manualmente: `git config --global core.pager delta` e `git config --global interactive.diffFilter "delta --color-only"`. Ver dot_gitconfig e run_once_30 para o conjunto completo de opções do delta.
+**Correção:** Instalar delta via `brew install delta` ou brew bundle. Rodar run_once_30 manualmente (com path do source correto) ou setar manualmente: `git config --global core.pager delta` e `git config --global interactive.diffFilter "delta --color-only"`. Ver `dot_gitconfig.tmpl` e run_once_30 para o conjunto completo de opções do delta.
 
 **Reverter:** `git config --global --unset core.pager` (e interactive.diffFilter se desejado) para voltar ao pager padrão.
 
@@ -60,7 +60,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Correção:** Para run_once_10: garantir rede e permissões; executar o script manualmente com BREWFILE ou source dir correto. Para run_once_20: executar novamente e inserir sudo quando pedido; se o erro for "Could not write domain ... com.apple.Safari", feche o Safari e reexecute o script (ou aplique os defaults do Safari manualmente com Safari fechado). Para run_once_30: fornecer data (name, email) ao chezmoi e reaplicar; ou configurar git config --global user.name/user.email manualmente. Forçar reexecução de run_once conforme opções do chezmoi (ex.: chezmoi re-run run_once).
 
-**Reverter:** Conforme o script: run_once_10 não desinstala pacotes; run_once_20 pode ser revertido por defaults delete ou Preferências do Sistema; run_once_30 pode ser sobrescrito editando ~/.gitconfig ou reaplicando dot_gitconfig.
+**Reverter:** Conforme o script: run_once_10 não desinstala pacotes; run_once_20 pode ser revertido por defaults delete ou Preferências do Sistema; run_once_30 pode ser sobrescrito editando ~/.gitconfig ou reaplicando `dot_gitconfig.tmpl`.
 
 ---
 
@@ -82,7 +82,7 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 
 **Validação:** `git config --global user.name` e `user.email`; se vazios, identidade não foi setada.
 
-**Correção:** Fornecer data ao chezmoi: criar ou editar `~/.config/chezmoi/chezmoi.toml` com `[data]`, `name` e `email`, e depois rodar `chezmoi apply`. Se run_once_30 já tiver rodado, definir manualmente: `git config --global user.name "..."` e `git config --global user.email "..."`. Documentado em 02-bootstrap-from-zero.md e 11-chezmoi-architecture.md.
+**Correção:** Fornecer data ao chezmoi: criar ou editar `~/.config/chezmoi/chezmoi.toml` com `[data]`, `name` e `email`, e depois rodar `chezmoi apply`. Se run_once_30 já tiver rodado, definir manualmente: `git config --global user.name "..."` e `git config --global user.email "..."`. Documentado em 02-bootstrap-do-zero.md e 11-chezmoi.md.
 
 **Reverter:** `git config --global --unset user.name user.email` se quiser remover; depois redefinir conforme desejado.
 
@@ -97,3 +97,15 @@ Problemas comuns, causas prováveis e correções. Manter linguagem técnica e o
 **Correção:** Garantir que o `.zshrc` exporta PATH com `$HOME/.local/bin` antes de carregar `~/.config/zsh/60-tmux-auto.zsh`. Aplicar dotfiles: `chezmoi apply`. Instalar tmux via Brewfile (run_once_10). Para forçar auto-session no local: `export TMUX_AUTOSTART=1` em ~/.zshrc.local.
 
 **Reverter:** Comentar/remover `~/.config/zsh/60-tmux-auto.zsh`. Ver 16-tmux.md.
+
+---
+
+## GitHub/SSH falha no bootstrap
+
+**Causas:** chave SSH ausente; chave pública não cadastrada no GitHub; acesso ao repo principal OK, mas sem acesso ao external do Neovim; alias SSH configurado no `~/.ssh/config.local`, mas URL do Git usa outro host.
+
+**Validação:** `ssh -T git@github.com`; se usar aliases dedicados, testar também `ssh -T git@github-dotfiles` e `ssh -T git@github-svim`. Em caso de dúvida, verificar se os arquivos `IdentityFile` existem e se a chave pública correspondente foi cadastrada no destino correto.
+
+**Correção:** Para chave única, gerar `ed25519`, adicionar ao `ssh-agent`/Keychain e cadastrar a chave na conta GitHub. Para múltiplas chaves, criar aliases em `~/.ssh/config.local` e usar a URL compatível com cada alias. Se o problema for só no Neovim external, garantir acesso a `git@github.com:Simplify-Technology/svim.git` ou trocar a URL em `.chezmoiexternal.toml`.
+
+**Reverter:** Se não quiser usar SSH no repo principal, usar HTTPS no `chezmoi init`. Se ainda assim quiser manter o external atual, será necessário resolver o acesso SSH ao repo do Neovim ou alterar o external.

@@ -18,11 +18,13 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------ |
 | dot_zshrc                           | ~/.zshrc               | Bootstrap do shell (p10k/Zinit/plugins/mise/direnv/zoxide) + loader de `~/.config/zsh/*.zsh`     |
 | dot_config/zsh/*.zsh                | ~/.config/zsh/*.zsh    | Opções/aliases/funções/keybindings/tmux-auto/helpers (carregados pelo `.zshrc`)                  |
-| dot_gitconfig                       | ~/.gitconfig           | Config global do Git (pull.rebase, delta, aliases etc.)                                          |
+| dot_gitconfig.tmpl                  | ~/.gitconfig           | Config global do Git (pull.rebase, delta, aliases etc.); identidade vem de `chezmoi` data        |
 | dot_p10k.zsh                        | ~/.p10k.zsh            | Tema Powerlevel10k (Nord, estilo Pure)                                                           |
 | dot_tmux.conf                       | ~/.tmux.conf           | Config tmux (status minimal, TPM, nordtheme, tmux-yank)                                          |
 | dot_local/bin/executable_tmux-auto  | ~/.local/bin/tmux-auto | Script: auto attach/cria sessão tmux por hostname em SSH; TMUX_AUTOSTART=1 força local            |
 | dot_zshrc.local.example             | ~/.zshrc.local.example | Modelo para config local da máquina (não aplicado como .local)                                   |
+| private_dot_ssh/private_config      | ~/.ssh/config          | Config SSH pública/safe; inclui `~/.ssh/config.local` para hosts privados                         |
+| private_dot_ssh/private_config.local.example | ~/.ssh/config.local.example | Exemplo para hosts privados e aliases locais fora do repo                                 |
 | run_once_10_homebrew-bundle.sh.tmpl | run once               | Instalar Homebrew se ausente, brew bundle a partir do Brewfile, fzf install                      |
 | run_once_20_macos-defaults.sh.tmpl  | run once               | Defaults do macOS (UI, teclado, Finder, Dock, screenshots, Safari, firewall)                     |
 | run_once_30_git.sh.tmpl             | run once               | Identidade Git se ausente (a partir de data), defaults principais, delta, aliases, ignore global (macOS, editor temp, logs, archives) |
@@ -35,14 +37,14 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 
 | Externo      | Target         | Origem                                                                              |
 | ------------ | -------------- | ----------------------------------------------------------------------------------- |
-| .config/nvim | ~/.config/nvim | [git@github.com](mailto:git@github.com):Simplify-Technology/svim.git (refresh 168h) |
+| .config/nvim | ~/.config/nvim | Repositório git externo `git@github.com:Simplify-Technology/svim.git` (refresh 168h) |
 
 
 **Dependências:** Zinit depende do Homebrew (instalado via run_once_10). Powerlevel10k e plugins dependem do Zinit. mise, direnv, zoxide dependem de estarem no PATH (Homebrew ou mise). Delta e config do Git dependem de run_once_10 (git, delta) e run_once_30. Config do Neovim depende de run_once_10 (neovim) e do chezmoi apply (clone externo). tmux-auto depende de tmux no PATH (Brewfile) e de ~/.local/bin no PATH (definido no .zshrc).
 
 ## Fluxo operacional
 
-**Sequência de bootstrap:** Instalar chezmoi → clonar repo → fornecer data (name, email para run_once_30) → `chezmoi init --apply` ou `chezmoi apply` → run_once 10, 20, 30, 40 executam na ordem (10: Homebrew + Brewfile; 20: defaults macOS; 30: Git; 40: TPM do tmux). Abrir Warp (ou terminal), iniciar Zsh; .zshrc roda na ordem acima.
+**Sequência de bootstrap:** Instalar chezmoi → configurar GitHub/SSH quando necessário → clonar repo → fornecer data (name, email para run_once_30) → `chezmoi init --apply` ou `chezmoi apply` → run_once 10, 20, 30, 40 executam na ordem (10: Homebrew + Brewfile; 20: defaults macOS; 30: Git; 40: TPM do tmux). Abrir Warp (ou terminal), iniciar Zsh; .zshrc roda na ordem acima.
 
 **Inicialização do shell (resumida):** instant prompt → brew shellenv → compinit → zinit → p10k + config → plugins → mise → PATH append → direnv hook → zoxide → `~/.config/zsh/*.zsh` → `.zshrc.local`.
 
@@ -61,5 +63,5 @@ Oferecer uma visão única do sistema: componentes, dependências e ordem de car
 ## Estratégia de recuperação
 
 - Garantir Homebrew no PATH antes do Zinit: manter o bloco do Homebrew no topo do .zshrc (apenas abaixo do instant prompt).
-- Documentar a ordem completa de bootstrap em 02-bootstrap-from-zero.md para que reinstalações sigam a mesma sequência.
+- Documentar a ordem completa de bootstrap em 02-bootstrap-do-zero.md para que reinstalações sigam a mesma sequência.
 

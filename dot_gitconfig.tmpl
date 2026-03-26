@@ -17,9 +17,12 @@
 	features = decorations
 [merge]
 	conflictstyle = zdiff3
+{{- $data := index . "data" -}}
+{{- if and $data (index $data "name") (index $data "email") }}
 [user]
-	email = cristiano@morgante.com.br
-	name = Cristiano Morgante
+	email = {{ index $data "email" }}
+	name = {{ index $data "name" }}
+{{- end }}
 [fetch]
 	prune = true
 	pruneTags = true
@@ -43,4 +46,4 @@
 	co = checkout
 	br = branch -vv
 	lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(dim white)- %an, %ar%C(reset)' --all
-  pf = push --force-with-lease
+	pf = push --force-with-lease

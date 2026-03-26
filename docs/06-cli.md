@@ -9,7 +9,7 @@ Documentar o conjunto de ferramentas CLI versionado via Brewfile (eza, vivid, ba
 - **eza com vivid (Nord):** eza substitui `ls` nos aliases; cores via `LS_COLORS="$(vivid generate nord)"` exportado no .zshrc quando vivid está disponível. Aliases: `l` (eza -lag --time-style=long-iso), `lt` (eza --tree --level=2 --long --group --time-style=long-iso).
 - **bat:** Uso sob demanda; alias `bcat='bat --theme="Nord"'`. O .zshrc explicita que não se deve sobrescrever `cat` globalmente para não quebrar scripts e ferramentas que esperam o comportamento do cat.
 - **ripgrep e fd:** Aliases `g="rg"` e `find="fd"`. Substituem grep e find na linha de comando interativa. Trade-off: scripts que invocam `find` ou `grep` sem path absoluto podem usar fd/rg se o alias estiver ativo; em scripts no .zshrc isso é aceito para o uso interativo.
-- **delta:** Usado como pager e diff do Git (dot_gitconfig e run_once_30); não há alias de shell para delta; ver 07-git-architecture.md.
+- **delta:** Usado como pager e diff do Git (`dot_gitconfig.tmpl` e run_once_30); não há alias de shell para delta; ver 07-git.md.
 - **lazygit:** Instalado pelo Brewfile; invocado como `lazygit` (sem alias no .zshrc no plano; manter conforme estado atual do dot_zshrc).
 - **ditto:** Alias `c="ditto"` (similar a cp); mantido conforme dot_zshrc.
 

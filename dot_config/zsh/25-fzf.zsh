@@ -233,12 +233,17 @@ sshf() {
 
   command -v fzf >/dev/null 2>&1 || { print -u2 -- "sshf: fzf not found"; return 127; }
 
-  local cfg="${HOME}/.ssh/config"
-  [[ -r "$cfg" ]] || { print -u2 -- "sshf: ~/.ssh/config not found or unreadable"; return 2; }
+  local cfg_main="${HOME}/.ssh/config"
+  local cfg_local="${HOME}/.ssh/config.local"
+  local -a cfgs=()
+
+  [[ -r "$cfg_main" ]] && cfgs+=("$cfg_main")
+  [[ -r "$cfg_local" ]] && cfgs+=("$cfg_local")
+  (( ${#cfgs[@]} > 0 )) || { print -u2 -- "sshf: no readable SSH config found (~/.ssh/config or ~/.ssh/config.local)"; return 2; }
 
   local host
   host="$(
-    command awk 'tolower($1)=="host"{for(i=2;i<=NF;i++){h=$i; if(h!="*" && h!~ /[*?]/) print h}}' "$cfg" |
+    command awk 'tolower($1)=="host"{for(i=2;i<=NF;i++){h=$i; if(h!="*" && h!~ /[*?]/) print h}}' "${cfgs[@]}" |
       command sort -u |
       fzf --select-1 --exit-0 --prompt='ssh> '
   )" || return $?

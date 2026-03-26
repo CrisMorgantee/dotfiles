@@ -1,6 +1,6 @@
 # Guia de instalação (passo a passo)
 
-Este guia é para quem está começando do zero: Mac novo ou reinstalação, sem dotfiles nem Homebrew. Siga a ordem dos passos; cada um traz o comando a executar, o que você deve ver na tela e o que fazer em caso de erro. Para a visão técnica e decisões de design, ver [02-bootstrap-from-zero.md](02-bootstrap-from-zero.md).
+Este guia é para quem está começando do zero: Mac novo ou reinstalação, sem dotfiles nem Homebrew. Siga a ordem dos passos; cada um traz o comando a executar, o que você deve ver na tela e o que fazer em caso de erro. Para a visão técnica e decisões de design, ver [02-bootstrap-do-zero.md](02-bootstrap-do-zero.md). Para o fluxo de SSH/GitHub, ver [17-ssh-e-github.md](17-ssh-e-github.md).
 
 ---
 
@@ -12,6 +12,9 @@ Este guia é para quem está começando do zero: Mac novo ou reinstalação, sem
 - Acesso à internet.
 - Conta no GitHub (para clonar o repositório dos dotfiles e, se for o caso, o repositório da config do Neovim).
 - Seu **nome** e **e-mail** para configurar o Git (serão usados em commits). Tenha esses dados à mão.
+- Se for usar os repositórios padrão deste ambiente via SSH, acesso a:
+  - `git@github.com:CrisMorgantee/dotfiles.git`
+  - `git@github.com:Simplify-Technology/svim.git`
 
 **Tempo estimado:** 15 a 30 minutos (depende da rede e do tempo de instalação do Homebrew e dos pacotes).
 
@@ -64,9 +67,56 @@ Deve aparecer o número da versão (ex.: `chezmoi version 2.x.x`).
 
 ---
 
-## Passo 3: Clonar o repositório e aplicar a configuração
+## Passo 3: Configurar acesso ao GitHub (recomendado)
 
-Neste passo você vai dizer ao chezmoi **qual repositório** usar (a URL do seu repo de dotfiles) e informar **nome e e-mail** para o Git. O chezmoi vai clonar o repo, copiar os arquivos de configuração para o lugar certo e rodar os scripts que instalam Homebrew, pacotes e configuram o sistema.
+Se você vai usar este ambiente com as URLs padrão, o ideal é configurar SSH antes do `chezmoi init`, porque:
+
+- o repositório principal pode ser clonado via SSH;
+- o external do Neovim usa `git@github.com:Simplify-Technology/svim.git`;
+- isso evita que o bootstrap funcione parcialmente e falhe depois no clone do external.
+
+### Fluxo mínimo recomendado
+
+1. Gere uma chave:
+
+```bash
+ssh-keygen -t ed25519 -C "seu-email@github.com" -f ~/.ssh/id_ed25519
+```
+
+2. Adicione ao `ssh-agent` e ao Keychain:
+
+```bash
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
+
+3. Cadastre a chave pública no GitHub:
+
+```bash
+pbcopy < ~/.ssh/id_ed25519.pub
+```
+
+4. Teste:
+
+```bash
+ssh -T git@github.com
+```
+
+Se a autenticação funcionar e sua conta tiver acesso aos repositórios necessários, siga para o próximo passo.
+
+### Quando sair do fluxo mínimo
+
+Use [17-ssh-e-github.md](17-ssh-e-github.md) se você precisar de:
+
+- uma chave por app/repositório;
+- aliases como `github-dotfiles` e `github-svim`;
+- `deploy keys` para servidor/automação;
+- adaptação do external do Neovim para outro repositório.
+
+---
+
+## Passo 4: Clonar o repositório e aplicar a configuração
+
+Neste passo você vai dizer ao chezmoi **qual repositório** usar e informar **nome e e-mail** para o Git. O chezmoi vai clonar o repo, copiar os arquivos de configuração para o lugar certo e rodar os scripts que instalam Homebrew, pacotes e configuram o sistema.
 
 **Antes do `init`**, crie a config local do chezmoi com o seu nome e e-mail. O run_once do Git lê esses valores de `[data]`.
 
@@ -82,30 +132,44 @@ email = "seu@email.com"
 EOF
 ```
 
-Depois disso, rode o `init --apply` com a URL do repositório:
+Depois disso, rode o `init --apply` com a URL do repositório.
+
+### Se você vai usar este ambiente exatamente como está
+
+Use:
+
+```bash
+chezmoi init --apply git@github.com:CrisMorgantee/dotfiles.git
+```
+
+### Se você vai usar um fork ou outro repositório
+
+Use a URL do seu fork:
 
 ```bash
 chezmoi init --apply URL_DO_SEU_REPO
 ```
 
-**Exemplo** (repositório e identidade deste ambiente):
+**Exemplo** com fork:
 
 ```bash
 mkdir -p ~/.config/chezmoi
 cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
 [data]
-name = "Cristiano Morgante"
-email = "cristiano@morgante.com.br"
+name = "Seu Nome"
+email = "seu@email.com"
 EOF
 
-chezmoi init --apply git@github.com:CrisMorgantee/dotfiles.git
+chezmoi init --apply git@github.com:SEU-USUARIO/SEU-REPO.git
 ```
 
-Se preferir HTTPS em vez de SSH:
+Se preferir HTTPS em vez de SSH para o repositório principal:
 
 ```bash
-chezmoi init --apply https://github.com/CrisMorgantee/dotfiles.git
+chezmoi init --apply https://github.com/SEU-USUARIO/SEU-REPO.git
 ```
+
+Mesmo usando HTTPS para o repositório principal, lembre-se: o external do Neovim continua apontando para `git@github.com:Simplify-Technology/svim.git` por padrão. Se você não configurar SSH ou não tiver acesso a esse repo, será preciso ajustar `.chezmoiexternal.toml`. Ver [17-ssh-e-github.md](17-ssh-e-github.md).
 
 **O que acontece:**
 
@@ -117,7 +181,7 @@ chezmoi init --apply https://github.com/CrisMorgantee/dotfiles.git
    - **run_once_30:** Configura o Git global (editor, pull com rebase, delta, identidade com o nome e e-mail que você passou, ignore global para macOS, editor temp, logs e archives).
    - **run_once_40:** Instala o TPM (Tmux Plugin Manager) em `~/.tmux/plugins/tpm` (clone do repo). Depois disso, dentro do tmux, use `prefix + I` para instalar plugins.
 
-**Se o repositório for privado ou usar SSH:** Tenha a chave SSH configurada no Mac ou use a URL HTTPS e faça login quando o Git pedir (ou use um token). Na primeira vez, o macOS pode pedir permissão para acessar chaves ou rede.
+**Se o repositório usar SSH:** Tenha a chave SSH configurada no Mac. Se você estiver usando exatamente este ambiente, valide o acesso tanto a `CrisMorgantee/dotfiles` quanto a `Simplify-Technology/svim`. Se preferir HTTPS no repo principal, ainda assim revise a seção do external do Neovim.
 
 **Se aparecer erro de rede ou de Git:** Verifique a URL do repo, a conexão e as credenciais (SSH ou HTTPS). Depois disso, você pode tentar de novo com:
 
@@ -125,7 +189,7 @@ chezmoi init --apply https://github.com/CrisMorgantee/dotfiles.git
 chezmoi apply
 ```
 
-(Isso reaplica a config; os run_once que já rodaram não repetem as mesmas ações destrutivas. Se precisar ajustar nome/e-mail, edite `~/.config/chezmoi/chezmoi.toml` antes do `apply`.) Exemplo com os dados deste ambiente:
+(Isso reaplica a config; os run_once que já rodaram não repetem as mesmas ações destrutivas. Se precisar ajustar nome/e-mail, edite `~/.config/chezmoi/chezmoi.toml` antes do `apply`.)
 
 ```bash
 chezmoi apply
@@ -133,7 +197,7 @@ chezmoi apply
 
 ---
 
-## Passo 4: Abrir o terminal (Warp) e usar o Zsh
+## Passo 5: Abrir o terminal (Warp) e usar o Zsh
 
 O Brewfile instala o **Warp** como terminal. O ambiente está preparado para usar o **Zsh** como shell padrão.
 
@@ -144,11 +208,11 @@ O Brewfile instala o **Warp** como terminal. O ambiente está preparado para usa
 
 **Se o Warp não estiver usando Zsh:** Nas preferências do Warp, defina o shell padrão como **Zsh** (path típico: `/opt/homebrew/bin/zsh` ou `/bin/zsh` em Mac com Homebrew).
 
-**Se o prompt não carregar ou der erro:** Feche o Warp e abra de novo. Se ainda falhar, ver [troubleshooting.md](troubleshooting.md) (seção “Zinit ou Powerlevel10k não carregam”).
+**Se o prompt não carregar ou der erro:** Feche o Warp e abra de novo. Se ainda falhar, ver [18-solucao-de-problemas.md](18-solucao-de-problemas.md) (seção “Zinit ou Powerlevel10k não carregam”).
 
 ---
 
-## Passo 5 (opcional): Config local da máquina
+## Passo 6 (opcional): Config local da máquina
 
 Se você precisar de configuração só nesta máquina (por exemplo, PATH do Herd para Laravel, ou outro binário local), use o arquivo `.zshrc.local`, que **não** é versionado.
 
@@ -168,7 +232,7 @@ nvim ~/.zshrc.local
 
 ---
 
-## Passo 6: Verificar se está tudo certo
+## Passo 7: Verificar se está tudo certo
 
 Rode os comandos abaixo no Warp (ou em qualquer terminal configurado para Zsh). Todos devem funcionar sem erro.
 
@@ -182,16 +246,17 @@ Rode os comandos abaixo no Warp (ou em qualquer terminal configurado para Zsh). 
 | Neovim | `nvim --version` | Versão do Neovim |
 | Git configurado | `git config --global user.name` | Seu nome |
 | Git configurado | `git config --global user.email` | Seu e-mail |
+| SSH GitHub | `ssh -T git@github.com` | GitHub reconhece sua autenticação |
 
 **Histórico:** Rode `echo $HISTFILE` (deve ser `~/.zsh_history`). Digite um prefixo (ex.: `cd `) e pressione **Seta para cima/baixo** para validar o `history-beginning-search`.
 
-**Se algo falhar:** Consulte [troubleshooting.md](troubleshooting.md). Os problemas mais comuns são: Homebrew não no PATH (rodar o run_once_10), identidade do Git vazia (preencher `~/.config/chezmoi/chezmoi.toml` com `name` e `email` e reaplicar), ou prompt não carregando (verificar ordem do .zshrc e instalação do Zinit).
+**Se algo falhar:** Consulte [18-solucao-de-problemas.md](18-solucao-de-problemas.md). Os problemas mais comuns são: Homebrew não no PATH (rodar o run_once_10), identidade do Git vazia (preencher `~/.config/chezmoi/chezmoi.toml` com `name` e `email` e reaplicar), ou prompt não carregando (verificar ordem do .zshrc e instalação do Zinit).
 
 ---
 
 ## Resumo dos comandos (copy-paste)
 
-Use este bloco como referência. Para este ambiente (Cristiano Morgante / CrisMorgantee/dotfiles), os comandos já vêm preenchidos; para outro usuário, substitua nome, e-mail e URL do repo.
+Use este bloco como referência para o caminho padrão e mais simples. Se você estiver usando múltiplas chaves, aliases SSH ou fork do Neovim external, ajuste conforme [17-ssh-e-github.md](17-ssh-e-github.md).
 
 ```bash
 # 1) Command Line Tools (se necessário)
@@ -204,14 +269,18 @@ sh -c "$(curl -fsLS get.chezmoi.io)"
 mkdir -p ~/.config/chezmoi
 cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
 [data]
-name = "Cristiano Morgante"
-email = "cristiano@morgante.com.br"
+name = "Seu Nome"
+email = "seu@email.com"
 EOF
 
-# 4) Aplicar dotfiles
+# 4) Configurar SSH para GitHub (caminho simples)
+ssh-keygen -t ed25519 -C "seu-email@github.com" -f ~/.ssh/id_ed25519
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+
+# 5) Aplicar este ambiente exatamente como ele está
 chezmoi init --apply git@github.com:CrisMorgantee/dotfiles.git
 
-# 5) Abrir o Warp e usar Zsh; opcional: config local
+# 6) Abrir o Warp e usar Zsh; opcional: config local
 cp ~/.zshrc.local.example ~/.zshrc.local   # só se for usar config local
 ```
 
@@ -222,5 +291,7 @@ Depois, abra o Warp e rode os comandos da tabela do Passo 6 para validar.
 ## Próximos passos
 
 - Para usar **mise** e **direnv** em projetos (Node, pnpm, Python, etc.), ver [14-guia-de-uso.md](14-guia-de-uso.md).
-- Para entender a arquitetura do ambiente (run_once, dotfiles, data), ver [01-architecture-overview.md](01-architecture-overview.md) e [11-chezmoi-architecture.md](11-chezmoi-architecture.md).
-- Para problemas após a instalação, ver [troubleshooting.md](troubleshooting.md).
+- Para entender a arquitetura do ambiente (run_once, dotfiles, data), ver [01-visao-geral.md](01-visao-geral.md) e [11-chezmoi.md](11-chezmoi.md).
+- Para entender SSH, múltiplas chaves e acesso ao GitHub, ver [17-ssh-e-github.md](17-ssh-e-github.md).
+- Para a visão geral pública do repositório, ver [../README.md](../README.md).
+- Para problemas após a instalação, ver [18-solucao-de-problemas.md](18-solucao-de-problemas.md).

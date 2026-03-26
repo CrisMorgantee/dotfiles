@@ -46,6 +46,5 @@ alias ca="chezmoi apply"
 alias cc="chezmoi cd"
 
 alias icloud='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/"'
-alias simplify='cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/business/simplify_technology/"'
-alias work='"cd ~/workspace"'
+alias work='cd "$HOME/workspace"'
 
