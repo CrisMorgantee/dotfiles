@@ -51,10 +51,6 @@ dev-up-all() {
   __dev_infra_compose --profile core --profile pgsql --profile mail up -d
 }
 
-dev-up-whatsapp() {
-  __dev_infra_compose --profile core --profile pgsql --profile whatsapp up -d
-}
-
 dev-down() {
   __dev_infra_compose down --remove-orphans
 }
