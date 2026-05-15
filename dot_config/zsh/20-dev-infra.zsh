@@ -48,7 +48,7 @@ dev-up() {
 }
 
 dev-up-all() {
-  __dev_infra_compose --profile core --profile mail up -d
+  __dev_infra_compose --profile core --profile pgsql --profile mail up -d
 }
 
 dev-down() {
@@ -206,5 +206,82 @@ dbuse() {
   fi
 
   __docker_exec_it "$MYSQL_CONTAINER" mysql -uroot "-p$MYSQL_ROOT_PASSWORD" "$db"
+}
+
+# ── PostgreSQL (container dev-postgres) ─────────────────────────────────────
+
+: "${POSTGRES_CONTAINER:=dev-postgres}"
+: "${POSTGRES_USER:=postgres}"
+
+__postgres_check_container() {
+  emulate -L zsh
+
+  if ! command -v docker >/dev/null 2>&1; then
+    print -r -- "dev-infra: docker not found."
+    return 127
+  fi
+
+  if ! command docker inspect "$POSTGRES_CONTAINER" >/dev/null 2>&1; then
+    print -r -- "dev-infra: postgres container not found: $POSTGRES_CONTAINER (did you run dev-up with --profile pgsql?)"
+    return 2
+  fi
+}
+
+__psql_exec() {
+  emulate -L zsh
+
+  local sql="${1:-}"
+  [[ -n "$sql" ]] || { print -r -- "dev-infra: missing SQL."; return 2; }
+
+  __postgres_check_container || return $?
+
+  __docker_exec_i "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" -v ON_ERROR_STOP=1 -c "$sql"
+}
+
+mkpgdb() {
+  emulate -L zsh
+
+  local db safe_id safe_str
+  db="$(__resolve_db_name "${1:-}")" || return $?
+  safe_id="${db//\"/\"\"}"
+  safe_str="${db//\'/\'\'}"
+
+  __postgres_check_container || return $?
+
+  local exists
+  exists="$(command docker exec -i "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" -tAq -c "SELECT 1 FROM pg_database WHERE datname = '$safe_str'")"
+  if [[ "$exists" == "1" ]]; then
+    print -r -- "dev-infra: database already exists: $db"
+    return 0
+  fi
+
+  __docker_exec_i "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" -v ON_ERROR_STOP=1 -c "CREATE DATABASE \"$safe_id\";"
+}
+
+droppgdb() {
+  emulate -L zsh
+
+  local db safe_id
+  db="$(__resolve_db_name "${1:-}")" || return $?
+  safe_id="${db//\"/\"\"}"
+
+  __psql_exec "DROP DATABASE IF EXISTS \"$safe_id\";"
+}
+
+pglist() {
+  emulate -L zsh
+  __postgres_check_container || return $?
+  __docker_exec_i "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" -l
+}
+
+pguse() {
+  emulate -L zsh
+
+  local db
+  db="$(__resolve_db_name "${1:-}")" || return $?
+
+  __postgres_check_container || return $?
+
+  __docker_exec_it "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" "$db"
 }
 
